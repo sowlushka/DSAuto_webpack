@@ -1,0 +1,81 @@
+:root{
+    --solution-color: #303030;
+    --solution-background-color: #F0F0F0;
+    --task-font-color: #405040;
+    --solution-shadow-color: #C0C0C0;
+    --solution-result-font-color:#1c5504;
+    --solution-max-width: 320px;//Минимальная ширина мобильного устройства
+}
+
+body{
+    background: linear-gradient(180deg, rgba(238,238,191,1) 0%, rgba(215,219,185,1) 100%);
+    min-height: 100vh;
+}
+
+a{
+    text-decoration: none;
+}
+
+h1{
+    text-align: center;
+}
+
+.task{
+    margin: 30px 10px;
+    color: var(--task-font-color);
+}
+
+h2{
+    text-align: center;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}
+
+.task-description{
+    max-width: calc(2 * var(--solution-max-width));
+    margin: 2px auto;
+}
+
+.solution{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 5px auto;
+    padding: 10px;
+    max-width:var(--solution-max-width);
+    height: auto;
+    border-radius: 3px;
+    background-color: var(--solution-background-color);
+    box-shadow: 7px 7px 3px var(--solution-shadow-color);
+    color: var(--solution-color);
+}
+
+.solution label{
+    margin: 0px 0px 3px 0px;
+    display: block;
+}
+
+.solution-inputs-container{
+    flex-grow: 1;
+}
+
+.solution input{
+    border: 1px solid var(--solution-color);
+    border-radius: 5px;
+    width: 220px;
+}
+
+.solution-result{
+    margin: 5px 0px 5px 1px;
+    color:var(--solution-result-font-color);
+    font-family: monospace;
+    font-size: 16px;
+    min-height: 30px;
+}
+
+.solution-result div{
+    word-wrap: break-word;
+    word-break: break-all;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
