@@ -1,7 +1,3 @@
-import "./index.scss";
-
-const postList = document.querySelector(".post-list");
-
 const data = [
   {
     id: 246706,
@@ -586,53 +582,3 @@ const data = [
     publishDate: 1698918198,
   },
 ];
-
-// const postTplList = data.map(createPostTPL);
-
-// postList.innerHTML = postTplList.join("");
-
-data.forEach((post) => {
-  const postTPL = createPostTPL(post);
-  postList.insertAdjacentHTML("beforeend", postTPL);
-});
-
-
-function createPostTPL(post) {
-  const reactions = post.reactions.reduce((prev, curr) => prev + curr.count, 0);
-
-  const src = post.company?.photo.original || post.user?.photo.original;
-  const alt = post.company?.photo.alt || post.user?.photo.alt;
-  const name = post.company?.title || post.user?.name;
-
-  const postTPL = `
-    <article class="post-card">
-      <div class="post-card__header">
-        <div class="post-card__avatar">
-          <img src="${src}" alt="${alt}">
-        </div>
-        <div>${name}</div>
-        <div>${post.publishDate}</div>
-      </div>
-  
-      <div class="post-card__content">
-        <h3>${post.title}</h3>
-        <span>${post.excerpt}</span>
-        <div class="post-card__thumbnail">
-          ${
-            post.thumbnail
-              ? `<img src="${post.thumbnail.original}" alt="${post.thumbnail.alt}">`
-              : ""
-          }
-        </div>
-      </div>
-  
-      <div class="post-card__footer">
-        <div>Реакции: ${reactions}</div>
-        <div>Коммент: ${post.comments}</div>
-        <div>В закладки: ${post.bookmarks.count}</div>
-        <div>Просмотры: ${post.view}</div>
-      </div>
-    </article>`;
-
-  return postTPL;
-}
