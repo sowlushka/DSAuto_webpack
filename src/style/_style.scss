@@ -2,85 +2,88 @@ main {
   max-width: 100%;
 
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: bisque;
+  min-height: 100vh;
+  padding: 20px 10px;
 }
 
 @mixin padding-border() {
   padding: 5px;
+  border-radius: 5px;
   border: 1px solid black;
 }
 
-.post-list {
-  width: 100%;
-  max-width: 840px;
 
-  display: flex;
-  flex-direction: column;
-  row-gap: 30px;
-
-  padding: 0 50px;
+@mixin wrapper_size(){
+   max-width: 300px;
+   padding: 15px;
+   margin: 5px;
 }
 
-.post-card {
-  display: flex;
-  flex-direction: column;
-  row-gap: 10px;
-
-  padding: 15px;
-
-  border: 1px solid black;
-  border-radius: 12px;
-}
-
-.post-card__header {
-  display: flex;
-  align-items: center;
-  column-gap: 10px;
-
- @include padding-border();
-}
-
-.post-card__avatar {
-  height: 40px;
-  width: 40px;
-
-  border-radius: 50%;
-
-  img {
-    width: inherit;
-
-    border-radius: inherit;
-  }
-}
-
-.post-card__content {
-  display: flex;
-  flex-direction: column;
-  row-gap: 5px;
-
+.form__cat-search{
+ 
+  @include wrapper_size();
   @include padding-border();
 
-  h3 {
-    margin: 0;
+  input{
+    width: 190px;
+  }
+  label{
+    display: inline-block;
+    margin: 3px 0px;
   }
 }
 
-.post-card__thumbnail {
-  width: 100%;
 
-  img {
-    width: inherit;
-  }
-}
-
-.post-card__footer {
+.catalyst-list{
   display: flex;
-  align-items: center;
-  column-gap: 10px;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  //@include padding-border();
+  width: 100%;
+  max-width: 1100px;
+  margin: 10px;
+  color: rgb(77, 12, 12); 
+}
 
+.catalyst-card{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  width: 300px;
   @include padding-border();
-
-  div:last-child {
-    margin-left: auto;
+  .card-header{
+    h3, h5{
+      display: block;
+      margin: 0px;
+      padding: 0px;
+      word-break: break-all;
+    }
   }
+
+  .catalyst-metals{
+    display: flex;
+    justify-content: space-around;
+    img{
+      height: 50px;
+    }
+  }
+  .catalyst-price{
+    text-align: center;
+    width: 100%;
+    font-size: 1.5em;
+    padding: 15px;
+    margin: 5px;
+    .catalyst-price-value{
+      color: red;
+    }
+  }
+}
+
+a{
+  text-decoration: none;
 }
