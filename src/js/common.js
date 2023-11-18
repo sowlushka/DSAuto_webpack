@@ -15,21 +15,18 @@ const urlPriceServer="https://infobootkatalizatory.vipserv.org/poznaj_cene/index
 const queryString="po=lp&id=617&authenticationwwwId=&tryb=2&tc_css=false&tc_js=false&tc_dane=top20&tc_wyszukiwarka=true&checkSrc=katPage&sessid=&visitorId=";
 
 
-let catSearchButton=document.getElementById("form__cat-search__button");
+const catSearchButton=document.getElementById("form__cat-search__button");
 const catList=document.querySelector('.catalyst-list');
-
-
+const searchAlert=document.querySelector(".search-alert");
+const catSearchInput=document.getElementById('form__cat-search__input');
+const messageAlert=document.getElementById('alert-message-wrapper');
 
 catSearchButton.onclick=()=>{
-  catList.innerHTML="Ожидайте. Идёт поиск...";
-  catList.style.fontSize="30px";
-  const catSearchInput=document.getElementById('form__cat-search__input');
-  getCatSerials(catSearchInput.value).then(()=>{//Ищем катализаторы с выбранным номером по базе данных
-    let getPricePromiseArr=cats.map(el=>getPriceById(el.id));
-    Promise.allSettled(getPricePromiseArr).then(()=>{//Подгружаем цены для найденных катализаторов
-        createPriceCards();
-    });
-  });
+  catList.innerHTML="";
+  searchAlert.style.display="block";
+  cats.length=0;
+
+  getCatSerials(catSearchInput.value);
   
   
 
@@ -38,7 +35,7 @@ catSearchButton.onclick=()=>{
 
 
 async function getPriceById(id){
-  await fetch(urlPriceServer,{
+  const price=await fetch(urlPriceServer,{
     method: "POST",
     headers: {
       // значение этого заголовка обычно ставится автоматически,
@@ -59,8 +56,9 @@ async function getPriceById(id){
       .then((json)=>{
         let cat=cats.find(cat=>cat.id==id);
         cat.price=json[id].pokaz_cene_historia[json[id].pokaz_cene_historia.length-1].price_usd;
+        return cat.price;
       });
-
+      return price;
 }
 
 async function getCatSerials(str){
@@ -85,12 +83,14 @@ async function getCatSerials(str){
           response.text())
       .then((text)=>{
           //Парсим информацию о катализаторах
+          searchAlert.style.display="";
           let catArr=text.split("cm_katalizator_itm");
           for(let i=1;i<catArr.length;++i){
           //Собираем информацию о катализаторах
             let id=catArr[i].match(/(?<=pokaz_cene_mobile\()\d+/)?.[0];
             if(!id)continue;
             let serial=catArr[i].match(/(?<=cm_kat_link[^>]*>)(.*?)(?=<\/a>)/)[0].replaceAll("<b>","").replaceAll("</b>","");
+            serial=serial.replaceAll("/"," / ");
             let brand=catArr[i].split("</tr>")[0].split("<td")[2].match(/(?<=>).*?(?=<)/)[0];
             brand=brand.replace(/VOLKSWAGEN\/AUDI\/SKODA\/SEAT/i, "VAG");
             let url=catArr[i].match(/(?<=cm_kat_link.*?href=").*?(?=")/)[0];
@@ -103,68 +103,86 @@ async function getCatSerials(str){
             let newCat=new CatInfo(Number(id),brand,serial,url,img,undefined,undefined,metalls,undefined);
             if (cats.every(cat=>cat.id!=newCat.id)){
               cats.push(newCat);
+              createPriceCard(newCat);
             }
+          }
+          if(!cats.length){
+            catList.innerHTML="НИЧЕГО НЕ НАЙДЕНО";
+          }else{
+            showMessage("Найдено "+cats.length+" позиций");
           }
       });
 }
 
 
-function createPriceCards(){
-//Создаём карточки катализаторов
-    catList.innerHTML="";//Очистка от старого поиска
-     catList.style.fontSize="";
+function createPriceCard(cat){
+//Создаём карточку катализатора
+    catList.style.fontSize="";
 
     catList.style.display="flex";
-    if (cats.length){
-         cats.forEach(cat=>{
-            const img=`
-                <a href="${cat.url}" target="_blank">
-                    <img src="${cat.img?cat.img:noPhotoJpg}" alt="${cat.serial}">
-                </a>
-                `;
 
-            const ptImg=!cat.metals.pt?"":`
-                <img src="${ptSvg}" alt="Pt">
-            `;
+         
+      const img=`
+          <a href="${cat.url}" target="_blank">
+              <img class="catalyst-card-photo" src="${cat.img?cat.img:noPhotoJpg}" alt="${cat.serial}">
+          </a>
+          `;
 
-            const pdImg=!cat.metals.pd?"":`
-                <img src="${pdSvg}" alt="Pd">
-            `;
+      const ptImg=!cat.metals.pt?"":`
+          <img src="${ptSvg}" alt="Pt">
+      `;
 
-            const rhImg=!cat.metals.rh?"":`
-                <img src="${rhSvg}" alt="Rh">
-            `;
+      const pdImg=!cat.metals.pd?"":`
+          <img src="${pdSvg}" alt="Pd">
+      `;
 
-            let html=`
-                    <div class="catalyst-card">
-                        <div class="card-header">
-                            <h3>
-                                ${cat.brand}
-                            <h3>
-                            <h5>
-                                <a href="${cat.url}" target="_blank">
-                                    ${cat.serial}
-                                </a>
-                            </h5>
-                        </div>
-                        ${img}
-                        <div class="catalyst-metals">
-                            ${ptImg}
-                            ${pdImg}
-                            ${rhImg}
-                        </div>
-                        <div class="catalyst-price">
-                            Цена: <span class="catalyst-price-value">${cat.price}$</span>
-                        </div>
-                    </div>
-            `;
-            catList.insertAdjacentHTML('beforeend', html);
-        });
+      const rhImg=!cat.metals.rh?"":`
+          <img src="${rhSvg}" alt="Rh">
+      `;
 
-
-    }
-    else{
-        catList.innerHTML="Ничего не найдено";
-    }
+      let html=`
+              <div class="catalyst-card">
+                  <div class="card-header">
+                      <h3>
+                          ${cat.brand}
+                      <h3>
+                      <h5>
+                          <a href="${cat.url}" target="_blank">
+                              ${cat.serial}
+                          </a>
+                      </h5>
+                  </div>
+                  ${img}
+                  <div class="catalyst-metals">
+                      ${ptImg}
+                      ${pdImg}
+                      ${rhImg}
+                  </div>
+                  <div class="catalyst-price" id="catalyst-price-${cat.id}">
+                      <button id="card-price-${cat.id}">Показать цену</button>
+                  </div>
+              </div>
+      `;
+      catList.insertAdjacentHTML('beforeend', html);
+      document.getElementById(`card-price-${cat.id}`).addEventListener('click',async(e)=>{
+        let id=e.target.id.match(/\d+/)[0];
+        let price = await getPriceById(id)
+        document.querySelector("#catalyst-price-"+id).innerHTML=`
+          Цена: ${price}$
+        `;
+      });
    
+}
+
+function showMessage(str){
+  messageAlert.style.display="flex";
+  messageAlert.querySelector("div").innerHTML=str;
+  //Вычисляем ширину окна
+  let vw=window.innerWidth;
+  let elWidth=messageAlert.offsetWidth;
+  messageAlert.style.left=vw/2-(elWidth/2);
+}
+
+document.getElementById('alert-message-button').onclick=()=>{
+  messageAlert.style.display="";
 }

@@ -1,3 +1,7 @@
+:root{
+  --alert-message-wrapper-width: 310px;
+}
+
 main {
   max-width: 100%;
 
@@ -43,7 +47,6 @@ main {
   flex-wrap: wrap;
   gap: 10px;
   justify-content: center;
-  //@include padding-border();
   width: 100%;
   max-width: 1100px;
   margin: 10px;
@@ -63,7 +66,14 @@ main {
       padding: 0px;
       word-break: break-all;
     }
+   
   }
+
+   .catalyst-card-photo{
+      display: block;
+      width: 280px;
+      margin: 2px auto;
+    }
 
   .catalyst-metals{
     display: flex;
@@ -74,16 +84,55 @@ main {
   }
   .catalyst-price{
     text-align: center;
-    width: 100%;
+    //width: 80%;
     font-size: 1.5em;
     padding: 15px;
     margin: 5px;
     .catalyst-price-value{
       color: red;
     }
+    button{
+      @include padding-border();
+    }
   }
 }
 
 a{
   text-decoration: none;
+}
+
+.search-alert{
+  display: none;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  @include padding-border();
+  opacity: 0.8;
+  background-color: rgb(18, 3, 52);
+  color:rgb(188, 238, 188);
+}
+
+#alert-message-wrapper{
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  @include padding-border();
+  z-index: 1;
+  position: fixed;
+  width: var(--alert-message-wrapper-width);
+  min-height: 15%;
+  top: 30%;
+  left: calc(50vw - var(--alert-message-wrapper-width) / 2);//Вычитаем 2 паддинга
+  background-color: rgb(197, 197, 230);
+  div{
+    text-align: center;
+  }
+  button{
+    display: block;
+    margin: 10px auto 5px auto;
+    text-align: center;
+    padding: 3px 20px;
+    
+  }
 }
