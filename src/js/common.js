@@ -21,13 +21,26 @@ const searchAlert=document.querySelector(".search-alert");
 const catSearchInput=document.getElementById('form__cat-search__input');
 const messageAlert=document.getElementById('alert-message-wrapper');
 
-catSearchButton.onclick=()=>{
+catSearchButton.onclick=async ()=>{
   catList.innerHTML="";
   searchAlert.style.display="block";
   cats.length=0;
 
-  getCatSerials(catSearchInput.value);
-  
+  await getCatSerials(catSearchInput.value);
+  const urls=cats.map(cat=>cat.url);
+
+  await fetch("http://localhost:3000/",{
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "accept": "application/json, text/javascript, */*; q=0.01"
+    },
+    body: "urls="+encodeURIComponent(JSON.stringify(urls)),
+  })
+    .then(response=>response.json())
+    .then(json=>{
+        console.log(json);
+        return json.mass});
   
 
   
