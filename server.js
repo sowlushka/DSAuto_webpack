@@ -34,7 +34,6 @@ app.listen(PORT, function () {
   app.post('/', urlencodedParser, async function(req, res) {
     
     const urls = JSON.parse(req.body.urls);
-    console.log(`\nrequest: ${urls}\n`);
     let mass=await getSiteDSAutoData(urls);
 
     console.log(mass);

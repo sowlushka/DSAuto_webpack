@@ -10,9 +10,8 @@ import noPhotoJpg from "../static/images/nophoto.jpg";
 const cats=[];//Массив автокатализаторных объектов
 
 const urlPriceServer="https://infobootkatalizatory.vipserv.org/poznaj_cene/index.php";
+const projectServer="http://localhost:3000/";
 
-//Исхдный запрос сайта
-const queryString="po=lp&id=617&authenticationwwwId=&tryb=2&tc_css=false&tc_js=false&tc_dane=top20&tc_wyszukiwarka=true&checkSrc=katPage&sessid=&visitorId=";
 
 
 const catSearchButton=document.getElementById("form__cat-search__button");
@@ -20,16 +19,29 @@ const catList=document.querySelector('.catalyst-list');
 const searchAlert=document.querySelector(".search-alert");
 const catSearchInput=document.getElementById('form__cat-search__input');
 const messageAlert=document.getElementById('alert-message-wrapper');
+const vehicleBrands=document.querySelector('.vehicle-brands');
+const metallsCheckboxes=document.querySelectorAll('input[type="checkbox"][id^="metalls__"]');
+
+
+vehicleBrands.addEventListener('change',sortTotal);
+
+metallsCheckboxes.forEach(input=>{
+  input.addEventListener('change',sortTotal);
+});
+
+
 
 catSearchButton.onclick=async ()=>{
-  catList.innerHTML="";
+  clearCatalystList();
   searchAlert.style.display="block";
   cats.length=0;
 
   await getCatSerials(catSearchInput.value);
   const urls=cats.map(cat=>cat.url);
+  createBrandSelectionData(cats);
 
-  await fetch("http://localhost:3000/",{
+  //Обращаемся к серверу проекта за получением данных о массе
+  await fetch(projectServer,{
     method: "POST",
     headers: {
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -198,4 +210,61 @@ function showMessage(str){
 
 document.getElementById('alert-message-button').onclick=()=>{
   messageAlert.style.display="";
+}
+
+function clearCatalystList(){
+//Очистка div .catalyst-list от данных
+  const list=document.querySelector('.catalyst-list');
+  for(;list.childNodes.length;){
+    list.childNodes[0].remove();
+  }
+}
+
+function createBrandSelectionData(cats){
+//Создать элемент фильтра: Селект с брендами авто
+  let brands=[];
+  cats.forEach(cat=>{
+    if(brands.every(brand=>cat.brand!=brand))brands.push(cat.brand);
+  });
+  brands.sort((a,b)=>a.localeCompare(b));
+  let html=`<option></option>
+    `;
+  brands.forEach(brand=>{
+    html+=`
+      <option>${brand}</option>
+    `;
+  });
+  vehicleBrands.innerHTML=html;
+}
+
+function selectMetalls(catalysts){
+//Фильтр данных по наличию металлов
+ let ptCheck=document.getElementById("metalls__pt").checked;
+ let pdCheck=document.getElementById("metalls__pd").checked;
+ let rhCheck=document.getElementById("metalls__rh").checked;
+ if(!(ptCheck || pdCheck || rhCheck)){
+//Если не один хим. элемент не отмечен, фильтрацию не делаем
+   return catalysts
+ }
+ return catalysts.filter(cat=>
+          cat.metals.pt == ptCheck && cat.metals.pd == pdCheck && cat.metals.rh == rhCheck
+        );
+}
+
+function selectBrand(catalysts){
+//Фильтр данных по бренду производителя авто
+  let brand=vehicleBrands.value;
+  if(!brand){
+    return catalysts;
+  } 
+  return catalysts.filter(cat=>cat.brand==brand);
+}
+
+function sortTotal(){
+//Итоговая функция сортироки по выставленным фильтрам
+  clearCatalystList();
+  let filteredCatalysts=selectMetalls(cats);//Фильтруем по набору металлов в катализаторах
+  filteredCatalysts=selectBrand(filteredCatalysts);
+
+  filteredCatalysts.forEach(cat=>createPriceCard(cat));
 }

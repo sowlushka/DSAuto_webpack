@@ -1,5 +1,5 @@
-:root{
-  --alert-message-wrapper-width: 310px;
+body{
+  font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
 }
 
 main {
@@ -33,7 +33,7 @@ main {
   @include padding-border();
 
   input{
-    width: 190px;
+    width: 220px;
   }
   label{
     display: inline-block;
@@ -124,7 +124,8 @@ a{
   min-height: 15%;
   top: 30%;
   left: calc(50vw - var(--alert-message-wrapper-width) / 2);//Вычитаем 2 паддинга
-  background-color: rgb(197, 197, 230);
+  background-color: rgb(222, 222, 240);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.8);
   div{
     text-align: center;
   }
