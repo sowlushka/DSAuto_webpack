@@ -35,11 +35,11 @@ catSearchButton.onclick=async ()=>{
   clearCatalystList();
   searchAlert.style.display="block";
   cats.length=0;
-
+  resetFilters();
   await getCatSerials(catSearchInput.value);
   const urls=cats.map(cat=>cat.url);
   createBrandSelectionData(cats);
-
+  
   //Обращаемся к серверу проекта за получением данных о массе
   await fetch(projectServer,{
     method: "POST",
@@ -211,6 +211,18 @@ function showMessage(str){
 document.getElementById('alert-message-button').onclick=()=>{
   messageAlert.style.display="";
 }
+
+
+
+function resetFilters(){
+//Сброс фильтров
+  metallsCheckboxes.forEach(input=>{
+    input.checked=false;
+  });
+  vehicleBrands.value="";
+
+}
+
 
 function clearCatalystList(){
 //Очистка div .catalyst-list от данных
