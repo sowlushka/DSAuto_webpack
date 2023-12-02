@@ -62,5 +62,8 @@ export class CatInfo{
         this.#price=value;
     }
 
+    set mass(value){
+        this.#mass=value;
+    }
     
 }

@@ -32,6 +32,5 @@
     "webpack-hot-middleware": "^2.25.4"
   },
   "dependencies": {
-    "puppeteer": "^21.5.2"
   }
 }

@@ -1,7 +1,10 @@
 
+import * as constants from './const.js';//Подгружаем константы проекта
 
+import {CatInfo} from './classes/CatInfo.mjs';
+import { Downloader } from './classes/Downloader';
 
-import {CatInfo} from './classes/CatInfo.mjs'
+//Изображения проекта
 import ptSvg from "../static/icons/pt.svg";
 import pdSvg from "../static/icons/pd.svg";
 import rhSvg from "../static/icons/rh.svg";
@@ -10,7 +13,7 @@ import noPhotoJpg from "../static/images/nophoto.jpg";
 const cats=[];//Массив автокатализаторных объектов
 
 const urlPriceServer="https://infobootkatalizatory.vipserv.org/poznaj_cene/index.php";
-const projectServer="http://localhost:3000/";
+
 
 
 
@@ -37,22 +40,9 @@ catSearchButton.onclick=async ()=>{
   cats.length=0;
   resetFilters();
   await getCatSerials(catSearchInput.value);
-  const urls=cats.map(cat=>cat.url);
-  createBrandSelectionData(cats);
-  
-  //Обращаемся к серверу проекта за получением данных о массе
-  await fetch(projectServer,{
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      "accept": "application/json, text/javascript, */*; q=0.01"
-    },
-    body: "urls="+encodeURIComponent(JSON.stringify(urls)),
-  })
-    .then(response=>response.json())
-    .then(json=>{
-        console.log(json);
-        return json.mass});
+  createBrandSelectionData(cats);//Заполняем <Select> производителями авто
+
+  getMassfromPolandServer(cats);//Для каждого катализатора подгружаем данные о массе
   
 
   
@@ -87,12 +77,12 @@ async function getPriceById(id){
 }
 
 async function getCatSerials(str){
-//На входе функции поисковая строка
+//Функция обращается для поиска кататализаторов с серийным номером, включающий в себя часть строки str
+//Через глобальный массив cats[] возвращает объекты катализаторов, соответствующие данному строковому шаблону
+
   await fetch('https://infobootkatalizatory.vipserv.org/search/search',{
     method: "POST",
     headers: {
-      // значение этого заголовка обычно ставится автоматически,
-      // в зависимости от тела запроса
       "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
       "accept": "*/*"
     },
@@ -146,7 +136,7 @@ function createPriceCard(cat){
 
     catList.style.display="flex";
 
-         
+      //Изображение катализатора   
       const img=`
           <a href="${cat.url}" target="_blank">
               <img class="catalyst-card-photo" src="${cat.img?cat.img:noPhotoJpg}" alt="${cat.serial}">
@@ -166,7 +156,7 @@ function createPriceCard(cat){
       `;
 
       let html=`
-              <div class="catalyst-card">
+              <div class="catalyst-card" id="catalyst-card-${cat.id}">
                   <div class="card-header">
                       <h3>
                           ${cat.brand}
@@ -178,6 +168,7 @@ function createPriceCard(cat){
                       </h5>
                   </div>
                   ${img}
+                  <div class="catalyst-mass">${cat.mass?"Масса: "+mass+" кг":""}</div>
                   <div class="catalyst-metals">
                       ${ptImg}
                       ${pdImg}
@@ -279,4 +270,61 @@ function sortTotal(){
   filteredCatalysts=selectBrand(filteredCatalysts);
 
   filteredCatalysts.forEach(cat=>createPriceCard(cat));
+}
+
+
+
+async function getMassfromPolandServer(cats){
+  if (cats.length<=constants.maxDownloadingSites){
+  //Ставим все катализаторы на докачку массы
+
+    cats.forEach(cat=>{
+        new Downloader(cat.url, (site)=>{
+        //Подгрузили массу. Добавляем данные к объекту
+        cat.mass=site.result.mass;
+        setMassToCard(cat.id, cat.mass);//Заносим массу в карточку катализатора
+      });
+    });
+
+  } else {
+  //Ставим на закачку массы первые maxDownloadingSites катализаторов
+    let sites=Array(constants.maxDownloadingSites);//Массив объектов для закачки массы
+
+    // Подготавливаем колбэк для обработки закачки и постановки новой закачки в очередь
+    let readDataAndNewDownloading=function(site){
+    //Функция считывает результат закачки и ставит в очередь новую закачку в том же объекте
+    //site - объект класса Downloader, выполнивший закачку
+
+      //C одинаковым url может быть несколько катализаторов с разным id. Прописываем им всем массу
+      cats.forEach(cat=>{
+        if(cat.url==site.url){
+        //Получили катализаторы, для которых выполнена закачка
+          cat.mass=site.result.mass;
+          setMassToCard(cat.id, cat.mass);//Заносим массу в карточку катализатора
+        }
+      });
+      site.eraseResult();//Сброс закачанных данных в объекте
+
+      //Ищем катализатор, для которого масса ещё не закачана и который не стоит в очереди на закачку массы
+      let newCat=cats.find(findingCat=>!findingCat.mass && sites.every(thisSite=>thisSite.url!=findingCat.url));
+      if(newCat){
+        site.startDownloading(newCat.url, readDataAndNewDownloading);
+      }
+      
+    }
+
+    for(let i=0;i<constants.maxDownloadingSites;++i){
+      sites[i]=new Downloader(cats[i].url,readDataAndNewDownloading);
+    }
+  }
+
+}
+
+function setMassToCard(id, mass){
+//Заносим массу катализатора id в html-карточку катализатора
+  let card=document.getElementById("catalyst-card-"+id);
+  if(!card)return;//карточка скрыта условими сортировки
+  let massDiv=card.querySelector(".catalyst-mass");
+  massDiv.style.display="block";
+  massDiv.innerText="Масса: "+mass+" кг";
 }
