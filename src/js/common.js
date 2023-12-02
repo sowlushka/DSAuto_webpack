@@ -1,29 +1,13 @@
 
 import * as constants from './const.js';//Подгружаем константы проекта
+import { cats } from './global-var.js';//Модуль глобальных переменных
 
 import {CatInfo} from './classes/CatInfo.mjs';
-import { Downloader } from './classes/Downloader';
+import { Downloader } from './classes/Downloader';//Класс докачки информации с индивидуальных страничек автокатов
+import { createPriceCard, showMessage, clearCatalystList, 
+  resetFilters, createBrandSelectionData, setMassToCard } from './libs-js/html-funcs.js';//Функции отрисовки DOM
 
-//Изображения проекта
-import ptSvg from "../static/icons/pt.svg";
-import pdSvg from "../static/icons/pd.svg";
-import rhSvg from "../static/icons/rh.svg";
-import noPhotoJpg from "../static/images/nophoto.jpg";
-
-const cats=[];//Массив автокатализаторных объектов
-
-const urlPriceServer="https://infobootkatalizatory.vipserv.org/poznaj_cene/index.php";
-
-
-
-
-const catSearchButton=document.getElementById("form__cat-search__button");
-const catList=document.querySelector('.catalyst-list');
-const searchAlert=document.querySelector(".search-alert");
-const catSearchInput=document.getElementById('form__cat-search__input');
-const messageAlert=document.getElementById('alert-message-wrapper');
-const vehicleBrands=document.querySelector('.vehicle-brands');
-const metallsCheckboxes=document.querySelectorAll('input[type="checkbox"][id^="metalls__"]');
+import { catSearchButton, metallsCheckboxes, vehicleBrands, searchAlert, catSearchInput, catList } from './libs-js/html-funcs.js';
 
 
 vehicleBrands.addEventListener('change',sortTotal);
@@ -35,46 +19,26 @@ metallsCheckboxes.forEach(input=>{
 
 
 catSearchButton.onclick=async ()=>{
+//Обработка клика по кнопке "Найти"
   clearCatalystList();
   searchAlert.style.display="block";
   cats.length=0;
   resetFilters();
   await getCatSerials(catSearchInput.value);
+
+  if(!cats.length){
+    catList.innerHTML="НИЧЕГО НЕ НАЙДЕНО";
+  }else{
+    showMessage("Найдено "+cats.length+" позиций");
+  }
+
+
   createBrandSelectionData(cats);//Заполняем <Select> производителями авто
 
   getMassfromPolandServer(cats);//Для каждого катализатора подгружаем данные о массе
-  
 
-  
 }
 
-
-async function getPriceById(id){
-  const price=await fetch(urlPriceServer,{
-    method: "POST",
-    headers: {
-      // значение этого заголовка обычно ставится автоматически,
-      // в зависимости от тела запроса
-      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
-      "accept": "application/json, text/javascript, */*; q=0.01"
-    },
-    body: "po=lp&id="+id+"&tryb=3&tc_dane=top1000&checkSrc=katPage&",
-    // или URL с текущего источника
-    referer: "https://infobootkatalizatory.vipserv.org/",
-    referrerPolicy: "origin-when-cross-origin",
-    mode: "cors",
-    cache: "default",
-    redirect: "follow"
-  })
-      .then(response=>
-          response.json())
-      .then((json)=>{
-        let cat=cats.find(cat=>cat.id==id);
-        cat.price=json[id].pokaz_cene_historia[json[id].pokaz_cene_historia.length-1].price_usd;
-        return cat.price;
-      });
-      return price;
-}
 
 async function getCatSerials(str){
 //Функция обращается для поиска кататализаторов с серийным номером, включающий в себя часть строки str
@@ -121,124 +85,9 @@ async function getCatSerials(str){
               createPriceCard(newCat);
             }
           }
-          if(!cats.length){
-            catList.innerHTML="НИЧЕГО НЕ НАЙДЕНО";
-          }else{
-            showMessage("Найдено "+cats.length+" позиций");
-          }
       });
 }
 
-
-function createPriceCard(cat){
-//Создаём карточку катализатора
-    catList.style.fontSize="";
-
-    catList.style.display="flex";
-
-      //Изображение катализатора   
-      const img=`
-          <a href="${cat.url}" target="_blank">
-              <img class="catalyst-card-photo" src="${cat.img?cat.img:noPhotoJpg}" alt="${cat.serial}">
-          </a>
-          `;
-
-      const ptImg=!cat.metals.pt?"":`
-          <img src="${ptSvg}" alt="Pt">
-      `;
-
-      const pdImg=!cat.metals.pd?"":`
-          <img src="${pdSvg}" alt="Pd">
-      `;
-
-      const rhImg=!cat.metals.rh?"":`
-          <img src="${rhSvg}" alt="Rh">
-      `;
-
-      let html=`
-              <div class="catalyst-card" id="catalyst-card-${cat.id}">
-                  <div class="card-header">
-                      <h3>
-                          ${cat.brand}
-                      <h3>
-                      <h5>
-                          <a href="${cat.url}" target="_blank">
-                              ${cat.serial}
-                          </a>
-                      </h5>
-                  </div>
-                  ${img}
-                  <div class="catalyst-mass">${cat.mass?"Масса: "+mass+" кг":""}</div>
-                  <div class="catalyst-metals">
-                      ${ptImg}
-                      ${pdImg}
-                      ${rhImg}
-                  </div>
-                  <div class="catalyst-price" id="catalyst-price-${cat.id}">
-                      <button id="card-price-${cat.id}">Показать цену</button>
-                  </div>
-              </div>
-      `;
-      catList.insertAdjacentHTML('beforeend', html);
-      document.getElementById(`card-price-${cat.id}`).addEventListener('click',async(e)=>{
-        let id=e.target.id.match(/\d+/)[0];
-        let price = await getPriceById(id)
-        document.querySelector("#catalyst-price-"+id).innerHTML=`
-          Цена: ${price}$
-        `;
-      });
-   
-}
-
-function showMessage(str){
-  messageAlert.style.display="flex";
-  messageAlert.querySelector("div").innerHTML=str;
-  //Вычисляем ширину окна
-  let vw=window.innerWidth;
-  let elWidth=messageAlert.offsetWidth;
-  messageAlert.style.left=vw/2-(elWidth/2);
-}
-
-document.getElementById('alert-message-button').onclick=()=>{
-  messageAlert.style.display="";
-}
-
-
-
-function resetFilters(){
-//Сброс фильтров
-  metallsCheckboxes.forEach(input=>{
-    input.checked=false;
-  });
-  vehicleBrands.value="";
-
-}
-
-
-function clearCatalystList(){
-//Очистка div .catalyst-list от данных
-  const list=document.querySelector('.catalyst-list');
-  for(;list.childNodes.length;){
-    list.childNodes[0].remove();
-  }
-}
-
-function createBrandSelectionData(cats){
-//Создать элемент фильтра: Селект с брендами авто
-  let brands=[];
-  cats.forEach(cat=>{
-    if(brands.every(brand=>cat.brand!=brand))brands.push(cat.brand);
-  });
-  brands.sort((a,b)=>a.localeCompare(b));
-  let html=`<option></option>
-    `;
-  brands.forEach(brand=>{
-    html+=`
-      <option>${brand}</option>
-    `;
-  });
-  vehicleBrands.innerHTML=html;
-}
 
 function selectMetalls(catalysts){
 //Фильтр данных по наличию металлов
@@ -309,6 +158,9 @@ async function getMassfromPolandServer(cats){
       let newCat=cats.find(findingCat=>!findingCat.mass && sites.every(thisSite=>thisSite.url!=findingCat.url));
       if(newCat){
         site.startDownloading(newCat.url, readDataAndNewDownloading);
+      } else {
+      //Закачка массы для всех катализаторов завершена
+
       }
       
     }
@@ -318,13 +170,4 @@ async function getMassfromPolandServer(cats){
     }
   }
 
-}
-
-function setMassToCard(id, mass){
-//Заносим массу катализатора id в html-карточку катализатора
-  let card=document.getElementById("catalyst-card-"+id);
-  if(!card)return;//карточка скрыта условими сортировки
-  let massDiv=card.querySelector(".catalyst-mass");
-  massDiv.style.display="block";
-  massDiv.innerText="Масса: "+mass+" кг";
 }
