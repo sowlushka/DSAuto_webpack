@@ -8,9 +8,10 @@ export class CatInfo{
     #mass;//Масса
     #metals;//Объект с перечнем металлов
     #price;//Массив объектов по ценам на автокаты за определённые даты
+    #company;//Владелец сайта
 
     
-    constructor(id, brand, serial, url, img, type, mass, metals, price){
+    constructor(id, brand, serial, url, img, type, mass, metals, price, company){
         this.#catId=id;
         this.#brand=brand;
         this.#serial=serial;
@@ -20,6 +21,7 @@ export class CatInfo{
         this.#mass=mass;
         this.#metals=metals;
         this.#price=price;
+        this.#company=company;
     }
 
     get id(){
@@ -56,6 +58,10 @@ export class CatInfo{
 
     get price(){
         return this.#price;
+    }
+
+    get company(){
+        return this.#company
     }
 
     set price(value){

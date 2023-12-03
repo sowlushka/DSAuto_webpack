@@ -1,5 +1,5 @@
 {
-  "name": "news-site-project",
+  "name": "Autocats",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
@@ -8,7 +8,7 @@
     "build": "webpack --config webpack/webpack.prod.js"
   },
   "keywords": [],
-  "author": "robotrainer",
+  "author": "McConst/Sowlushka",
   "license": "ISC",
   "devDependencies": {
     "@babel/core": "^7.23.0",

@@ -100,7 +100,13 @@ main {
     }
     button{
       @include padding-border();
+      background-color: #E0E0E0;
+      cursor: pointer;
     }
+    button:active{
+      background-color: #EAEAEA;
+    }
+    
   }
 }
 
