@@ -1,7 +1,7 @@
 //Библиотеки отрорисовки элементов DOM
 
 
-import { getPriceById } from "./network";//Библиотека функций работы с сетевыми запросами
+import { getPriceById } from "./network/dsauto";//Библиотека функций работы с сетевыми запросами
 
 //Изображения проекта
 import ptSvg from "../../static/icons/pt.svg";
