@@ -1,6 +1,6 @@
 export class CatInfo{
     #catId;//id катализатора
-    #brand;//Марка авто
+    #brands=[];//Марка авто
     #serial;//серийный номер
     #url;//адрес на сайте
     #img;//ссылка на изображение
@@ -13,7 +13,7 @@ export class CatInfo{
     
     constructor(id, brand, serial, url, img, type, mass, metals, price, company){
         this.#catId=id;
-        this.#brand=brand;
+        this.#brands[0]=brand;
         this.#serial=serial;
         this.#url=url;
         this.#img=img;
@@ -28,8 +28,8 @@ export class CatInfo{
         return this.#catId;
     }
 
-    get brand(){
-        return this.#brand;
+    get brands(){
+        return this.#brands;
     }
 
     get serial(){
@@ -70,6 +70,10 @@ export class CatInfo{
 
     set mass(value){
         this.#mass=value;
+    }
+
+    addBrand(brand){
+        Array.isArray(brand)?this.#brands=[...brand]:this.#brands.push(brand);
     }
     
 }

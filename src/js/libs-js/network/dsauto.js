@@ -5,7 +5,7 @@
 
 import { cats } from "../../global-var.js"; //Модуль глобальных переменных
 import {CatInfo} from "../../classes/CatInfo.mjs";
-import { createPriceCard } from "../html-funcs.js";
+import { createPriceCard, searchAlert, setMassToCard } from "../html-funcs.js";
 import * as constants from "../../const.js";
 import { Downloader } from "../../classes/Downloader.js";
 import { WorkProgress } from "../../classes/WorkProgress.mjs";//Класс отображения прогресса
@@ -74,7 +74,7 @@ export async function getDSAutoCatSerials(str){
             metalls.pd=catArr[i].match(/(?<=Zawiera metale.+?)PD/)?true:false;
             metalls.rh=catArr[i].match(/(?<=Zawiera metale.+?)RH/)?true:false;
             let newCat=new CatInfo(Number(id),brand,serial,url,img,undefined,undefined,metalls,undefined, constants.company.DSAuto);
-            if (cats.every(cat=>cat.id!=newCat.id)){
+            if (!cats.some(cat=>cat.id==newCat.id && cat.company==constants.company.DSAuto)){
               cats.push(newCat);
               createPriceCard(newCat);
             }
@@ -139,7 +139,7 @@ export async function getMassfromDSAuto(cats){
 
       if(newCat){
         site.startDownloading(newCat.url, readDataAndNewDownloading);
-      } else if(!cats.find(findingCat=>!findingCat.mass)){
+      } else if(!cats.find(findingCat=>findingCat.company==constants.company.DSAuto && !findingCat.mass)){
       //Все массы закачаны
         progress.close();
       }

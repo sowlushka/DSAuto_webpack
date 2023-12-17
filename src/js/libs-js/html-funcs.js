@@ -33,15 +33,15 @@ const img=`
 </a>
 `;
 
-const ptImg=!cat.metals.pt?"":`
+const ptImg=!cat.metals?.pt?"":`
 <img src="${ptSvg}" alt="Pt">
 `;
 
-const pdImg=!cat.metals.pd?"":`
+const pdImg=!cat.metals?.pd?"":`
 <img src="${pdSvg}" alt="Pd">
 `;
 
-const rhImg=!cat.metals.rh?"":`
+const rhImg=!cat.metals?.rh?"":`
 <img src="${rhSvg}" alt="Rh">
 `;
 
@@ -51,7 +51,7 @@ let html=`
 <div class="catalyst-card" id="catalyst-card-${cat.id}">
     <div class="card-header">
         <h3>
-            ${cat.brand}
+            ${cat.brands.join(", ")}
             <h3>
                 <h5>
                     <a href="${cat.url}" target="_blank">
@@ -123,7 +123,7 @@ export function createBrandSelectionData(cats){
 //Создать элемент фильтра: Селект с брендами авто
   let brands=[];
   cats.forEach(cat=>{
-    if(brands.every(brand=>cat.brand!=brand))brands.push(cat.brand);
+    if(brands.every(brand=>cat.brands.every(el=>el!=brand)))brands.push(cat.brand);
   });
   brands.sort((a,b)=>a.localeCompare(b));
   let html=`<option></option>
