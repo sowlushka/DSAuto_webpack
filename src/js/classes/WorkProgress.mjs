@@ -7,6 +7,13 @@ export class WorkProgress{
     #finishValue;//Значение для окончания прогресса
     #autoclose;//Автозакрытие прогресса при достижении финиша
 
+    /**
+     * @constructor
+     * @param {DOMElement} div Объект DOM элемента, выступающий в качестве прогресса
+     * @param {Number} finishValue конечное значение прогресса (целое число)
+     * @param {String} startMessage сообщение при запуске прогресса
+     * @param {Boolean} autoclose Автоматическое закрытие прогресса при достижении конца currValue==finishValue
+     */
     constructor(div, finishValue, startMessage="", autoclose=true, ){
         this.#div=div;
         if(finishValue)this.#finishValue=finishValue;
@@ -15,6 +22,12 @@ export class WorkProgress{
         this.#div.innerHTML=startMessage;
     }
 
+    /**
+     *Функция устанавливает прогресс в новое значение. Отображает сообщение о текущем прогрессе и графически цветом бэкграунда
+     * @param {String} message Сообщение о ходе прогресса
+     * @param {Number} currValue Текущее значение програсса (целое число)
+     * @param {Number} finishValue Конечное значение прогресса (целое число)
+     */
     showProgress(message, currValue, finishValue=this.#finishValue){
     //Показать прогресс
         this.#currValue=currValue;
@@ -38,6 +51,10 @@ export class WorkProgress{
 
     get currValue(){
         return this.#currValue;
+    }
+
+    get finishValue(){
+        return this.#finishValue;
     }
 
 }

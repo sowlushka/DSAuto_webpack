@@ -1,7 +1,11 @@
 //Библиотеки отрорисовки элементов DOM
 
 
-import { getPriceById } from "./network/dsauto";//Библиотека функций работы с сетевыми запросами
+import { getDSAutoPriceById } from "./network/dsauto";//Библиотека функций работы с сетевыми запросами
+import { getEcotradePrice } from "./network/ecotrade.js";
+import {company} from "../const.js";
+import { cats } from "../global-var";
+
 
 //Изображения проекта
 import ptSvg from "../../static/icons/pt.svg";
@@ -19,68 +23,85 @@ export const vehicleBrands=document.querySelector('.vehicle-brands');
 export const metallsCheckboxes=document.querySelectorAll('input[type="checkbox"][id^="metalls__"]');
 const messageAlert=document.getElementById('alert-message-wrapper');
 
-
+/**
+ * Получить карточку цены катализатора
+ * @param {Object} cat Объект катализатора
+ */
 export function createPriceCard(cat){
 //Создаём карточку катализатора
-catList.style.fontSize="";
+  catList.style.fontSize="";
 
-catList.style.display="flex";
+  catList.style.display="flex";
 
-//Изображение катализатора
-const img=`
-<a href="${cat.url}" target="_blank">
-    <img class="catalyst-card-photo" src="${cat.img?cat.img:noPhotoJpg}" alt="${cat.serial}">
-</a>
-`;
+  //Изображение катализатора
+  const img=`
+  <a href="${cat.url}" target="_blank">
+      <img class="catalyst-card-photo" src="${cat.img?cat.img:noPhotoJpg}" alt="${cat.serial}">
+  </a>
+  `;
 
-const ptImg=!cat.metals?.pt?"":`
-<img src="${ptSvg}" alt="Pt">
-`;
+  const ptImg=!cat.metals?.pt?"":`
+  <img src="${ptSvg}" alt="Pt">
+  `;
 
-const pdImg=!cat.metals?.pd?"":`
-<img src="${pdSvg}" alt="Pd">
-`;
+  const pdImg=!cat.metals?.pd?"":`
+  <img src="${pdSvg}" alt="Pd">
+  `;
 
-const rhImg=!cat.metals?.rh?"":`
-<img src="${rhSvg}" alt="Rh">
-`;
+  const rhImg=!cat.metals?.rh?"":`
+  <img src="${rhSvg}" alt="Rh">
+  `;
 
-const priceElement=cat.price?`Цена: ${cat.price}$`:`<button id="card-price-${cat.id}">Показать цену</button>`;
+  let id;
+  switch(cat.company){
+    case company.DSAuto:
+      id=company.DSAuto + cat.id;
+      break;
+    case company.Ecotrade:
+      id=company.Ecotrade+cats.findIndex(element=>cat.url==element.url);
+      break;
+  }
 
-let html=`
-<div class="catalyst-card" id="catalyst-card-${cat.id}">
-    <div class="card-header">
-        <h3>
-            ${cat.brands.join(", ")}
-            <h3>
-                <h5>
-                    <a href="${cat.url}" target="_blank">
-                        ${cat.serial}
-                    </a>
-                </h5>
-    </div>
-    ${img}
-    <div class="catalyst-mass" ${cat.mass?'style="display: block"':""}>${cat.mass?"Масса: "+cat.mass+" кг":""}</div>
-    <div class="catalyst-metals">
-        ${ptImg}
-        ${pdImg}
-        ${rhImg}
-    </div>
-    <div class="catalyst-price" id="catalyst-price-${cat.id}">
-        ${priceElement}
-    </div>
-</div>
-`;
-catList.insertAdjacentHTML('beforeend', html);
+  const priceElement=cat.price?`Цена: ${cat.price}$`:`<button id="card-price-${id}">Показать цену</button>`;
 
+  let html=`
+  <div class="catalyst-card" id="catalyst-card-${id}">
+      <div class="card-header">
+          <h3>
+              ${cat.brands.join(", ")}
+              <h3>
+                  <h5>
+                      <a href="${cat.url}" target="_blank">
+                          ${cat.serial}
+                      </a>
+                  </h5>
+      </div>
+      ${img}
+      <div class="catalyst-mass" ${cat.mass?'style="display: block"':""}>${cat.mass?"Масса: "+cat.mass+" кг":""}</div>
+      <div class="catalyst-metals">
+          ${ptImg}
+          ${pdImg}
+          ${rhImg}
+      </div>
+      <div class="catalyst-price" id="catalyst-price-${id}">
+          ${priceElement}
+      </div>
+  </div>
+  `;
+  catList.insertAdjacentHTML('beforeend', html);
 
-document.getElementById(`card-price-${cat.id}`)?.addEventListener('click',async(e)=>{
-    let id=e.target.id.match(/\d+/)[0];
-    let price = await getPriceById(id)
-    document.querySelector("#catalyst-price-"+id).innerHTML=`
-    Цена: ${price}$
-    `;
-});
+  //Событие на кнопку цены
+  let getPriceListener;//Функция обработки нажатия кнопки получения цены
+  switch(cat.company){
+    case company.DSAuto:
+        getPriceListener=getPriceListener_dsauto;
+        break;
+    case company.Ecotrade:
+        getPriceListener=getPriceListener_ecotrade;
+        break;
+  }
+
+  document.getElementById(`card-price-${id}`)?.addEventListener('click',getPriceListener);
 
 }
 
@@ -139,9 +160,43 @@ export function createBrandSelectionData(cats){
 
 export function setMassToCard(id, mass){
 //Заносим массу катализатора id в html-карточку катализатора
-  let card=document.getElementById("catalyst-card-"+id);
+  let card=document.getElementById("catalyst-card-"+ company.DSAuto + id);
   if(!card)return;//карточка скрыта условими сортировки
   let massDiv=card.querySelector(".catalyst-mass");
   massDiv.style.display="block";
   massDiv.innerText="Масса: "+mass+" кг";
+}
+
+
+
+
+
+/**
+ * Слушатель события клика по кнопке "Получить цену" для катализатора DSAuto
+ * @param {Object} e событие
+ */
+export function getPriceListener_dsauto(e){
+    let id=e.target.id.match(/\d+/)[0];
+    getDSAutoPriceById(id).
+    then(price=>
+      {
+        document.getElementById('catalyst-price-'+company.DSAuto+id).innerHTML=`
+        Цена: ${price}$
+        `;
+      });
+}
+/**
+ * Слушатель события клика по кнопке "Получить цену" для катализатора Ecotrade
+ * @param {Object} e событие
+ */
+export function getPriceListener_ecotrade(e){
+    let id=e.target.id.match(/\d+/)[0];
+    let url=cats[id].url;
+    getEcotradePrice(url).
+     then(price=>
+      {
+        document.getElementById('catalyst-price-'+company.Ecotrade+id).innerHTML=`
+        Цена: ${price}$
+        `;
+      });
 }

@@ -7,7 +7,7 @@ import { getDSAutoCatSerials, getMassfromDSAuto} from './libs-js/network/dsauto.
 import { getEcotradeCatSerials } from './libs-js/network/ecotrade.js';
 
 import { showMessage, clearCatalystList, 
-  resetFilters, createBrandSelectionData, setMassToCard } from './libs-js/html-funcs.js';//Функции отрисовки DOM
+  resetFilters, createBrandSelectionData} from './libs-js/html-funcs.js';//Функции отрисовки DOM
 
 import { catSearchButton, metallsCheckboxes, vehicleBrands, searchAlert, catSearchInput, catList } from './libs-js/html-funcs.js';
 import { sortTotal } from './libs-js/filters.js';
@@ -36,23 +36,25 @@ catSearchButton.onclick=async ()=>{
   searchStatus[constants.company.DSAuto]=true;//Поиск по катализаторам DSAuto активен
   searchStatus[constants.company.Ecotrade]=true;//Поиск по катализаторам Ecotrade активен
 
-  getDSAutoCatSerials(catSearchInput.value).
+  let downloadPromise=[];
+  downloadPromise.push(getDSAutoCatSerials(catSearchInput.value));
+  /*
   then(()=>{
     searchAlert.style.display="";
     if(!cats.length){
       catList.innerHTML="НИЧЕГО НЕ НАЙДЕНО";
     }else{
       showMessage("Найдено "+cats.length+" позиций");
-    }
+    }*/
 
+  downloadPromise.push(getEcotradeCatSerials(catSearchInput.value));
+  
+  await Promise.allSettled(downloadPromise);//Ожидаем завершение закачки катализаторов от всех страниц
 
-    createBrandSelectionData(cats);//Заполняем <Select> производителями авто
+   createBrandSelectionData(cats);//Заполняем <Select> производителями авто
+
     if(cats.length && cats.some(cat=>cat.company==constants.company.DSAuto)){
       //Массив катализаторов не пустой и среди них есть хотя бы один польский. Можно подгружать данные о массе
       getMassfromDSAuto(cats);
     }
-  });
-
-  getEcotradeCatSerials(catSearchInput.value).then
-
 }

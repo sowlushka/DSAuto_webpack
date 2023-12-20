@@ -10,7 +10,13 @@ import * as constants from "../../const.js";
 import { Downloader } from "../../classes/Downloader.js";
 import { WorkProgress } from "../../classes/WorkProgress.mjs";//Класс отображения прогресса
 
-export async function getPriceById(id){
+
+/**
+ * Получить цену с сайта DSAuto по id катализатора
+ * @param {number} id 
+ * @returns {number} Цена в долларах
+ */
+export async function getDSAutoPriceById(id){
   const price=await fetch(constants.urlPriceServer,{
     method: "POST",
     headers: {
@@ -75,8 +81,8 @@ export async function getDSAutoCatSerials(str){
             metalls.rh=catArr[i].match(/(?<=Zawiera metale.+?)RH/)?true:false;
             let newCat=new CatInfo(Number(id),brand,serial,url,img,undefined,undefined,metalls,undefined, constants.company.DSAuto);
             if (!cats.some(cat=>cat.id==newCat.id && cat.company==constants.company.DSAuto)){
-              cats.push(newCat);
-              createPriceCard(newCat);
+                cats.push(newCat);
+                createPriceCard(newCat);
             }
           }
       });
@@ -88,19 +94,22 @@ export async function getDSAutoCatSerials(str){
 export async function getMassfromDSAuto(cats){
 //Функция докачки массы со страниц катализаторов польского сервера DSAuto
 
-  let progress=new WorkProgress(searchAlert, cats.length, "Закачка массы...");//Создаём объект класса прогресса
-  let massSitesCount=cats.reduce((acc, cat)=>(cat.company==constants.company.DSAuto && !cat.mass)?acc+1:acc,0);//Кол-во катализаторов фирмы DSAuto без массы
+  let massSitesCount_total=cats.reduce((acc, cat)=>(cat.company==constants.company.DSAuto && !cat.mass)?acc+1:acc,0);//Кол-во катализаторов фирмы DSAuto без массы
+  let progress=new WorkProgress(searchAlert,  massSitesCount_total, "Закачка массы...");//Создаём объект класса прогресса
 
-  if (massSitesCount<=constants.maxDownloadingSites){
+  if (massSitesCount_total<=constants.maxDownloadingSites){
   //Ставим все катализаторы одновременно на докачку массы
     cats.forEach((cat, index)=>{
         if(cat.company==constants.company.DSAuto && !cat.mass){
         //Катализатор от фирмы DSAuto без массы. Ставим на закачку
-          new Downloader(cat.url, (site)=>{
+          new Downloader(constants.serverVPN2, "POST", {"url": cat.url}, "application/json", (site)=>{
             //Подгрузили массу. Добавляем данные к объекту
-            cat.mass=site.result.mass;
+            cat.mass=site.json.mass;
             setMassToCard(cat.id, cat.mass);//Заносим массу в карточку катализатора
-            let progressMessage=`Докачка массы: ${index+1} из ${massSitesCount}`;
+
+            //Текущее кол-во катализаторов фирмы DSAuto без массы            
+            let massSitesCount_curr=cats.reduce((acc, cat)=>(cat.company==constants.company.DSAuto && !cat.mass)?acc+1:acc,0);
+            let progressMessage=`Докачка массы: ${massSitesCount_curr-massSitesCount_curr} из ${massSitesCount_curr}`;
             progress.showProgress(progressMessage,index+1);
           });
         }
@@ -119,9 +128,9 @@ export async function getMassfromDSAuto(cats){
 
       //C одинаковым url может быть несколько катализаторов с разным id. Прописываем им всем массу
       cats.forEach(cat=>{
-        if(cat.url==site.url){
+        if(cat.url==site.requestParameters.url){
         //Получили катализаторы, для которых выполнена закачка
-          cat.mass=site.result.mass;
+          cat.mass=site.json.mass;
           setMassToCard(cat.id, cat.mass);//Заносим массу в карточку катализатора
         }
       });
@@ -129,8 +138,8 @@ export async function getMassfromDSAuto(cats){
       site.eraseResult();//Сброс закачанных данных в объекте
 
       //Отображаем прогресс
-        let currValue=cats.reduce((acc,curr,indx)=>cats[indx].mass?acc+1:acc,0);
-        let progressMessage=`Докачка массы: ${currValue} из ${cats.length}`;
+        let currValue=cats.reduce((acc, cat)=>(cat.company==constants.company.DSAuto && cat.mass)?acc+1:acc,0);
+        let progressMessage=`Докачка массы: ${currValue} из ${massSitesCount_total}`;
         progress.showProgress(progressMessage,currValue);
 
       //Ищем катализатор, для которого масса ещё не закачана и который не стоит в очереди на закачку массы
@@ -138,7 +147,7 @@ export async function getMassfromDSAuto(cats){
         findingCat.company==constants.company.DSAuto && !findingCat.mass && sites.every(thisSite=>thisSite.url!=findingCat.url));
 
       if(newCat){
-        site.startDownloading(newCat.url, readDataAndNewDownloading);
+        site.startDownloading(constants.serverVPN2, "POST", {"url": newCat.url}, "application/json",  readDataAndNewDownloading);
       } else if(!cats.find(findingCat=>findingCat.company==constants.company.DSAuto && !findingCat.mass)){
       //Все массы закачаны
         progress.close();
@@ -150,7 +159,7 @@ export async function getMassfromDSAuto(cats){
       let newCat=cats.find(findingCat=>
         findingCat.company==constants.company.DSAuto && !findingCat.mass && sites.every(thisSite=>thisSite.url!=findingCat.url));
 
-      sites[i]=new Downloader(newCat.url,readDataAndNewDownloading);
+      sites[i]=new Downloader(constants.serverVPN2, "POST", {"url": newCat.url}, "application/json", readDataAndNewDownloading);
     }
   }
 

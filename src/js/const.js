@@ -1,6 +1,8 @@
 //Константы проекта
 
 export const serverVPN="https://s250133.h1n.ru/vpn.php";//vpn-сервер для кросс-браузерных запросов
+export const serverVPN2="https://s250133.h1n.ru/vpn_dsauto.php";//vpn-сервер для кросс-браузерных запросов c парсингом сайта DSAuto
+
 export const maxDownloadingSites=20;//Максимальное кол-во одновременно подгружаемых сайтов
 export const maxEcotradeDownloadPages=20;//Макс. кол-во подгружаемых страниц Ecotrade
 

@@ -2,6 +2,7 @@ import * as constants from "../../const.js";
 import { cats } from "../../global-var.js"; //Модуль глобальных переменных
 import {CatInfo} from "../../classes/CatInfo.mjs";
 import { createPriceCard } from "../html-funcs.js";
+import noPhotoJpg from "../../../static/images/nophoto.jpg";
 
 export async function getEcotradeCatSerials(searchString, url=constants.urlEcotradeSearchServer){
     await fetch(url + encodeURIComponent(searchString),{
@@ -37,7 +38,7 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
             let product=ecotradeJSONData[ecotradeCurrentPosition]
             if(product){
                 id=Number(product.id);
-                price=Math.round(product.price*10000)/10000;
+                price=Math.round(product.price*100)/100;
             }
             
             //Считываем общую информацию о катализаторе с карточки
@@ -46,6 +47,9 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
             serial=serial.replaceAll(" ","");
             let url=constants.urlEcotradeSearchServer.match(/^.+?\.com/)+dataText.match(/(?<=href=").*?(?=")/su)[0];
             let img=dataText.match(/(?<=url\(').*?(?=')/su)[0];
+            if(!img.toLowerCase().includes(constants.company.Ecotrade.toLowerCase())){
+                img=noPhotoJpg;
+            }
             let newCat=new CatInfo(id,undefined,serial,url,img,undefined,undefined,undefined,price, constants.company.Ecotrade);
             newCat.addBrand(brands);
             cats.push(newCat);
@@ -56,7 +60,7 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
         let pagesLink=text.match(/pagination.*(<li.*?href="(.*?)".*?<\/ul)+?.*?<section/su)?.[2];
         let pagesCount=pagesLink?.match(/\d+/)?.[0];
         let urlCount=url?.match(/\d+/)?.[0];
-        if(urlCount==pagesCount || urlCount==constants.maxEcotradeDownloadPages){
+        if(!pagesCount || urlCount==pagesCount || urlCount==constants.maxEcotradeDownloadPages){
             console.log("Зашли на уровень самой глубокой загрузкии "+urlCount);
             console.log("Всего в массиве " + cats.length + " катализаторов");
             console.log(cats);
@@ -72,4 +76,31 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
       });
 
 
+}
+
+
+/**
+ * 
+ * @param {String} url Получить цену со странички Ecotrade
+ */
+export async function getEcotradePrice(url){
+    let price=await fetch(url,{
+    method: "GET",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+      "accept": "*/*"
+    },
+        referrerPolicy: "origin-when-cross-origin",
+        mode: "cors",
+        cache: "default",
+        redirect: "follow"
+    })
+        .then(response=>
+                response.text())
+        .then((text)=>{
+                return Math.round(text.match(/ecommerce:.*?price.*?(\d+\.?\d*)/s)[1]*100)/100;
+        });
+    
+    return price;
+    
 }
