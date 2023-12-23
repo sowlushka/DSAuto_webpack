@@ -2,7 +2,6 @@
 
 import { cats } from "../global-var";
 import { clearCatalystList, createPriceCard } from "./html-funcs.js";
-import { vehicleBrands } from './html-funcs.js';
 
 function selectMetalls(catalysts){
 //Фильтр данных по наличию металлов
@@ -20,11 +19,11 @@ function selectMetalls(catalysts){
 
 function selectBrand(catalysts){
 //Фильтр данных по бренду производителя авто
-  let brand=vehicleBrands.value;
+  let brand=document.querySelector('.form__cat-search .vehicle-brands').value;
   if(!brand){
     return catalysts;
   } 
-  return catalysts.filter(cat=>cat.brand==brand);
+  return catalysts.filter(cat=>cat.brands.some(el=>el==brand));
 }
 
 export function sortTotal(){
@@ -34,4 +33,15 @@ export function sortTotal(){
   filteredCatalysts=selectBrand(filteredCatalysts);
 
   filteredCatalysts.forEach(cat=>createPriceCard(cat));
+}
+
+export function resetFilters(){
+//Сброс фильтров на форме сайта
+  const metallsCheckboxes=document.querySelectorAll('input[type="checkbox"][id^="metalls__"]');
+  metallsCheckboxes.forEach(input=>{
+    input.checked=false;
+  });
+
+  document.querySelector('.form__cat-search .vehicle-brands').value="";
+
 }

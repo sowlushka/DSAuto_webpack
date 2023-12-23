@@ -5,7 +5,7 @@
 
 import { cats } from "../../global-var.js"; //Модуль глобальных переменных
 import {CatInfo} from "../../classes/CatInfo.mjs";
-import { createPriceCard, searchAlert, setMassToCard } from "../html-funcs.js";
+import { createPriceCard} from "../html-funcs.js";
 import * as constants from "../../const.js";
 import { Downloader } from "../../classes/Downloader.js";
 import { WorkProgress } from "../../classes/WorkProgress.mjs";//Класс отображения прогресса

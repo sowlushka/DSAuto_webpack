@@ -2,7 +2,6 @@
 
 
 import { getDSAutoPriceById } from "./network/dsauto";//Библиотека функций работы с сетевыми запросами
-import { getEcotradePrice } from "./network/ecotrade.js";
 import {company} from "../const.js";
 import { cats } from "../global-var";
 
@@ -14,14 +13,6 @@ import rhSvg from "../../static/icons/rh.svg";
 import noPhotoJpg from "../../static/images/nophoto.jpg";
 
 
-//Элементы DOM
-export const catSearchButton=document.getElementById("form__cat-search__button");
-export const catList=document.querySelector('.catalyst-list');
-export const searchAlert=document.querySelector(".search-alert");
-export const catSearchInput=document.getElementById('form__cat-search__input');
-export const vehicleBrands=document.querySelector('.vehicle-brands');
-export const metallsCheckboxes=document.querySelectorAll('input[type="checkbox"][id^="metalls__"]');
-const messageAlert=document.getElementById('alert-message-wrapper');
 
 /**
  * Получить карточку цены катализатора
@@ -29,6 +20,10 @@ const messageAlert=document.getElementById('alert-message-wrapper');
  */
 export function createPriceCard(cat){
 //Создаём карточку катализатора
+
+  const catList=document.querySelector('.catalyst-list');
+  const catSearchInput=document.getElementById('form__cat-search__input');
+
   catList.style.fontSize="";
 
   catList.style.display="flex";
@@ -106,16 +101,6 @@ export function createPriceCard(cat){
 }
 
 
-export function showMessage(str){
-//Вывод немодального сообщения в окно браузера (аналог AlertS)
-  messageAlert.style.display="flex";
-  messageAlert.querySelector("div").innerHTML=str;
-
-  //Вычисляем ширину окна
-  let vw=window.innerWidth;
-  let elWidth=messageAlert.offsetWidth;
-  messageAlert.style.left=vw/2-(elWidth/2);
-}
 
 export function clearCatalystList(){
 //Очистка div .catalyst-list от данных
@@ -125,27 +110,14 @@ export function clearCatalystList(){
   }
 }
 
-document.getElementById('alert-message-button').onclick=()=>{
-  messageAlert.style.display="";
-}
-
-
-export function resetFilters(){
-//Сброс фильтров на форме сайта
-  metallsCheckboxes.forEach(input=>{
-    input.checked=false;
-  });
-  vehicleBrands.value="";
-
-}
-
 
 export function createBrandSelectionData(cats){
 //Создать элемент фильтра: Селект с брендами авто
-  let brands=[];
+  let brandsSet=new Set();
   cats.forEach(cat=>{
-    if(brands.every(brand=>cat.brands.every(el=>el!=brand)))brands.push(cat.brand);
+    brandsSet.add(...cat.brands);
   });
+  let brands=[...brandsSet];
   brands.sort((a,b)=>a.localeCompare(b));
   let html=`<option></option>
     `;
@@ -154,7 +126,7 @@ export function createBrandSelectionData(cats){
       <option>${brand}</option>
     `;
   });
-  vehicleBrands.innerHTML=html;
+  document.querySelector('.vehicle-brands').innerHTML=html;
 }
 
 
@@ -200,3 +172,4 @@ export function getPriceListener_ecotrade(e){
         `;
       });
 }
+
