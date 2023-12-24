@@ -1,0 +1,35 @@
+@mixin borders{
+    border: 1px solid $border-color;
+    border-radius: 4px;
+}
+
+.form-login{
+    @include borders();
+    width: 320px;
+    position: relative;
+    top: -10vh;
+
+    label{
+        display: block;
+        margin: 20px auto 5px auto;
+        width: 80%;
+    }
+    input{
+        @include borders();
+        display: block;
+        margin: 5px auto;
+        width: 80%;
+    }
+    button{
+        @include borders();
+        display: block;
+        margin: 15px auto;
+        padding: 3px 10px;
+    }
+    .login-message{
+        width: 80%;
+        text-align: center;
+        margin: 5px auto;
+        color: red;
+    }
+}
