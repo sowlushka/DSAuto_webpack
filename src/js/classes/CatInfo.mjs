@@ -1,6 +1,8 @@
+import { brandsForChange } from "../brandsForChange.js";
+
 export class CatInfo{
     #catId;//id катализатора
-    #brands=[];//Марка авто
+    #brands;//Марка авто
     #serial;//серийный номер
     #url;//адрес на сайте
     #img;//ссылка на изображение
@@ -13,7 +15,8 @@ export class CatInfo{
     
     constructor(id, brand, serial, url, img, type, mass, metals, price, company){
         this.#catId=id;
-        this.#brands[0]=brand;
+        this.#brands=new Set()
+        if(brand) this.addBrand(brand);
         this.#serial=serial;
         this.#url=url;
         this.#img=img;
@@ -29,7 +32,7 @@ export class CatInfo{
     }
 
     get brands(){
-        return this.#brands;
+        return Array.from(this.#brands);
     }
 
     get serial(){
@@ -73,7 +76,24 @@ export class CatInfo{
     }
 
     addBrand(brand){
-        Array.isArray(brand)?this.#brands=[...brand]:this.#brands.push(brand);
+
+        if (Array.isArray(brand)){
+            brand.forEach(el=>{
+                let correctBrand=this.#editBrand(el);
+                this.#brands.add(correctBrand);
+            });
+            
+        }else{
+            let correctBrand=this.#editBrand(brand);
+            this.#brands.add(correctBrand);
+        }
     }
     
+    #editBrand(brand){
+        let correctBrand=brand.toUpperCase();
+        correctBrand=brandsForChange.find(obj=>obj.source.some(el=>el.toUpperCase()==correctBrand))?.brand??correctBrand;
+
+        return correctBrand;
+    }
+
 }

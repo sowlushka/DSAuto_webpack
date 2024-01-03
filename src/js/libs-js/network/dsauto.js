@@ -71,7 +71,6 @@ export async function getDSAutoCatSerials(str){
             let serial=catArr[i].match(/(?<=cm_kat_link[^>]*>)(.*?)(?=<\/a>)/)[0].replaceAll("<b>","").replaceAll("</b>","");
             serial=serial.replaceAll("/"," / ");
             let brand=catArr[i].split("</tr>")[0].split("<td")[2].match(/(?<=>).*?(?=<)/)[0];
-            brand=brand.replace(/VOLKSWAGEN\/AUDI\/SKODA\/SEAT/i, "VAG");
             let url=catArr[i].match(/(?<=cm_kat_link.*?href=").*?(?=")/)[0];
             let img=catArr[i].match(/href=".*?\.jpe?g/)
             if (img)img=img[0].replace('href="',"");//.replace("width300","width1600");

@@ -14,7 +14,7 @@ function selectMetalls(catalysts){
    return catalysts
  }
  return catalysts.filter(cat=>
-          cat.metals.pt == ptCheck && cat.metals.pd == pdCheck && cat.metals.rh == rhCheck
+          cat.metals?.pt == ptCheck && cat.metals?.pd == pdCheck && cat.metals?.rh == rhCheck
         );
 }
 
@@ -24,7 +24,7 @@ function selectBrand(catalysts){
   if(!brand){
     return catalysts;
   } 
-  return catalysts.filter(cat=>cat.brand==brand);
+  return catalysts.filter(cat=>cat.brands.includes(brand));
 }
 
 export function sortTotal(){

@@ -142,10 +142,13 @@ export function resetFilters(){
 
 export function createBrandSelectionData(cats){
 //Создать элемент фильтра: Селект с брендами авто
-  let brands=[];
+  let uniqBrands=new Set();
   cats.forEach(cat=>{
-    if(brands.every(brand=>cat.brands.every(el=>el!=brand)))brands.push(cat.brand);
+    cat.brands.forEach(thisBrand=>uniqBrands.add(thisBrand));
   });
+
+  let brands=Array.from(uniqBrands);
+
   brands.sort((a,b)=>a.localeCompare(b));
   let html=`<option></option>
     `;
@@ -168,9 +171,6 @@ export function setMassToCard(id, mass){
 }
 
 
-
-
-
 /**
  * Слушатель события клика по кнопке "Получить цену" для катализатора DSAuto
  * @param {Object} e событие
@@ -185,6 +185,8 @@ export function getPriceListener_dsauto(e){
         `;
       });
 }
+
+
 /**
  * Слушатель события клика по кнопке "Получить цену" для катализатора Ecotrade
  * @param {Object} e событие

@@ -1,7 +1,7 @@
 import * as constants from "../../const.js";
 import { cats } from "../../global-var.js"; //Модуль глобальных переменных
 import {CatInfo} from "../../classes/CatInfo.mjs";
-import { createPriceCard } from "../html-funcs.js";
+import { createPriceCard, createBrandSelectionData } from "../html-funcs.js";
 import noPhotoJpg from "../../../static/images/nophoto.jpg";
 
 export async function getEcotradeCatSerials(searchString, url=constants.urlEcotradeSearchServer){
@@ -61,9 +61,9 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
         let pagesCount=pagesLink?.match(/\d+/)?.[0];
         let urlCount=url?.match(/\d+/)?.[0];
         if(!pagesCount || urlCount==pagesCount || urlCount==constants.maxEcotradeDownloadPages){
-            console.log("Зашли на уровень самой глубокой загрузкии "+urlCount);
-            console.log("Всего в массиве " + cats.length + " катализаторов");
-            console.log(cats);
+            /*Уровень самой глубокой загрузки, максимально разрешенное кол-во страниц Экотрейд поставлено на закачку */
+
+            createBrandSelectionData(cats);
             return;
         }
         ++urlCount;
@@ -72,7 +72,6 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
             //Поисковая строка уже вшита в URL, поэтому не прописываем её
             getEcotradeCatSerials("", newUrl);
         }
-        
       });
 
 
