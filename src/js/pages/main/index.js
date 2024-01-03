@@ -1,8 +1,9 @@
 
 import { createSearchForm } from "./search-form.js";
 import { alertElement } from "./searchAlert.js";
+import { createHeader } from "../../libs-js/header.js";
 
-
+const header=createHeader();
 
 const selectorMain=document.createElement("main");
 
@@ -22,6 +23,6 @@ searchAlert.classList.add('search-alert');
 //Формируем страницу
 export const MainPage=()=>{
     const html=new DocumentFragment;
-    html.append(selectorMain, searchAlert, alertElement);
+    html.append(header, selectorMain, searchAlert, alertElement);
     return html;
 };

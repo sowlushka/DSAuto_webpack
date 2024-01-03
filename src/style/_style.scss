@@ -1,6 +1,9 @@
 body{
   font-family: 'Roboto Condensed', Arial, Helvetica, sans-serif;
+  background-color: $background-color;
 }
+
+@import './header';
 
 main {
   max-width: 100%;
@@ -22,7 +25,7 @@ main {
 
 
 @mixin wrapper_size(){
-   max-width: 300px;
+   max-width: $standard-project-width;
    padding: 15px;
    margin: 5px;
 }
@@ -57,7 +60,7 @@ main {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  width: 300px;
+  width: $standard-project-width;
   @include padding-border();
   .card-header{
     h3, h5{
@@ -71,7 +74,7 @@ main {
 
    .catalyst-card-photo{
       display: block;
-      width: 280px;
+      width: calc($standard-project-width - 20px);
       margin: 2px auto;
     }
 
@@ -100,11 +103,11 @@ main {
     }
     button{
       @include padding-border();
-      background-color: #E0E0E0;
+      background-color: $buttons-color;
       cursor: pointer;
     }
     button:active{
-      background-color: #EAEAEA;
+      background-color: $buttons-color-active;
     }
     
   }
@@ -152,3 +155,4 @@ a{
 }
 
 @import './login/login';
+@import './registration/registration';

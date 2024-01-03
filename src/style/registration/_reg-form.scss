@@ -1,6 +1,6 @@
 @import '../mixins';
 
-.form-login{
+.reg-form{
     @include borders();
     width: calc($standard-project-width + 20px);
     position: relative;
@@ -17,16 +17,25 @@
         margin: 5px auto;
         width: 80%;
     }
-    button{
+    .link-button{
         @include borders();
+        width: 100px;
+        text-align: center;
         display: block;
         margin: 15px auto;
         padding: 3px 10px;
+        background-color: $buttons-color;
     }
+
     .form-message{
         width: 80%;
         text-align: center;
         margin: 5px auto;
         color: red;
     }
+
+    .link-button:active{
+        background-color: $buttons-color-active;
+    }
+ 
 }

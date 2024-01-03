@@ -10,7 +10,7 @@ export function createForm_Login(){
         <input id="login-email" type="email" require>
         <label for="login-password">password:</label>
         <input id="login-password" type="password" require>
-        <div class="login-message"></div>
+        <div class="form-message"></div>
         <button>Вход</button>
     `;
     form.insertAdjacentHTML('afterbegin', html);
