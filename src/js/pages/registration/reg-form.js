@@ -1,3 +1,6 @@
+import * as constants from '../../const';//Константы проекта
+import { regAlertElement } from "./reg-alert";//Подгружаем объект управления окном системных сообщений страницы Регистрация
+
 export function createRegForm(){
     const form=document.createElement('form');
     form.classList.add('reg-form');
@@ -27,7 +30,8 @@ export function createRegForm(){
 
 
 
-function regFormValidation(e){
+async function regFormValidation(e){
+    e.preventDefault();
     const form=e.target.parentNode;
     const messageDiv=form.querySelector('.form-message');
     const formData= new FormData(form);
@@ -46,14 +50,25 @@ function regFormValidation(e){
         return false;
     }
 
-    if(formData.get('email1')!=formData.get('email2')){
+    if(email1!=email2){
         e.preventDefault();
         messageDiv.innerText="Е-маил не совпадают";
         return false;
     }
 
+    const pass1=formData.get('pass1');
+    const pass2=formData.get('pass2');
+    if(!pass1 || !pass2 || pass1!=pass2){
+        e.preventDefault();
+        messageDiv.innerText="Пароли не совпадают";
+        return false;
+    }
 
-    
+    const result=await regUser(email1, pass1);//Регистрация пользовател в базе данных
+    if (result){
+        const message="<p>На е-маил отправлено письмо.</p> <p>Завершите регистрацию кликом на ссылку в письме</p>";
+         regAlertElement.showMessage(message);
+    }
 }
 
 /**
@@ -63,4 +78,29 @@ function regFormValidation(e){
 function isEmailValid(email){
     const regexp=/^(([^<>()[\].,;:\s@"]+(\.[^<>()[\].,;:\s@"]+)*)|(".+"))@(([^<>()[\].,;:\s@"]+\.)+[^<>()[\].,;:\s@"]{2,})$/u;
     return regexp.test(email);
+}
+
+async function regUser(email, password){
+//Регистрируем пользователя в базе данных сервиса
+    const result=await fetch(constants.regServerUrl, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
+            "accept": "*/*"
+        },
+        body: "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password),
+        referrerPolicy: "origin-when-cross-origin",
+        mode: "cors"
+    }).then(response=>response.json())
+    .then(data=>{
+        if(!data?.status){
+        //Ошибка регистрации.Отображаем сообщение об ошибке
+            regAlertElement.showMessage(data.err_description);
+            return false;
+        }
+        
+        return true;//Регистрация на сервере не вернула ошибок
+    });
+
+    return result;
 }

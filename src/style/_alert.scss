@@ -1,0 +1,27 @@
+@import './mixins';
+
+.alert-message-wrapper{
+  display: none;
+  flex-direction: column;
+  justify-content: space-between;
+  box-sizing: border-box;
+  @include padding-border();
+  z-index: 1;
+  position: fixed;
+  width: var(--alert-message-wrapper-width);
+  min-height: 15%;
+  top: 30%;
+  left: calc(50vw - var(--alert-message-wrapper-width) / 2);//Вычитаем 2 паддинга
+  background-color: rgb(222, 222, 240);
+  box-shadow: 4px 4px 8px 0px rgba(34, 60, 80, 0.8);
+  div{
+    text-align: center;
+  }
+  button{
+    display: block;
+    margin: 10px auto 5px auto;
+    text-align: center;
+    padding: 3px 20px;
+    
+  }
+}

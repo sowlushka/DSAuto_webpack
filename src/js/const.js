@@ -10,3 +10,5 @@ export const company=Object.freeze({DSAuto: "DSAuto", Ecotrade: "Ecotrade"});//�
 export const urlPriceServer="https://infobootkatalizatory.vipserv.org/poznaj_cene/index.php";//Сервер получения цены катализатора
 export const urlDSAutoSearchServer="https://infobootkatalizatory.vipserv.org/search/search";//Поисковый сервер компании DSAuto
 export const urlEcotradeSearchServer="https://www.ecotradegroup.com/ru/search/1?search%5Bkeyword%5D=";//Поиск по базе Ecotrade
+
+export const regServerUrl="https://catalyst.h1n.ru/test-temp/reg.php";//Сервер регистрации пользователя

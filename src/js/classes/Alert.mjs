@@ -18,7 +18,7 @@ export class Alert{
         wrapper.classList.add('alert-message-wrapper');
         wrapper.insertAdjacentHTML('afterbegin',html);
         wrapper.querySelector('button').addEventListener('click',(e)=>{
-            e.currentTarget.style.display="";
+            this.#alertElement.style.display="";
         });
         this.#alertElement=wrapper;
         return this.#alertElement;
@@ -35,8 +35,8 @@ export class Alert{
 
         //Вычисляем ширину окна
         let vw=window.innerWidth;
-        let elWidth=mthis.#alertElement.offsetWidth;
-        messageAlert.style.left=vw/2-(elWidth/2);
+        let elWidth=this.#alertElement.offsetWidth;
+        this.#alertElement.style.left=vw/2-(elWidth/2);
     }
 
 }
