@@ -39,7 +39,6 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
     if (count($result) && $result[0]['checked']) {
         //Такой пользователь уже существует и е-маил подтверждён. Отказываем в регистрации
         $JSON['err_description'] = "Такой пользователь уже зарегистрирован";
-        $JSON['err_obj'] = $result;
         die(json_encode($JSON));
     }
 
@@ -60,7 +59,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
     //Отправляем письмо на е-маил
     $topic = "Завершение регистрации на DSAuto";
     $message = '<div>Для завершения регистрации на сервисе DSAuto перейдите <a href="https://catalyst.h1n.ru/test-temp/reg.php?code=' .
-        urlencode($cookie) . '">по ссылке:</a> </div>';
+        urlencode($hash) . '">по ссылке:</a> </div>';
     $message .= "<div>Ваш пароль: " . $_POST['password'] . "</div>";
     $result = null; //Переменная ответа
     if (!SendMail($topic, $message, $_POST['email'], $result)) {
@@ -71,13 +70,14 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         die(json_encode($JSON));
     }
 
-
+    //Письмо отправлено. Ставим куки
+    setcookie('code', $cookie, time() + 3600 * 24 * 180);
     $JSON['status'] = true;
 } else if (isset($_GET['code'])) {
     //-----------------------------БЛОК ПОДТВЕРЖДЕНИЯ Е-МАИЛ----------------------------------------
 
     //Ищем в базе данных пользователя, ожидающего регистрацию
-    $Params[':code'] = $_GET['code'];
+    $Params[':pass_hash'] = $_GET['code'];
     $result = null;
 
     if (!sqlRequest($db, SQL_GET_USER_FOR_REGISTR, $Params, $result)) {
@@ -92,14 +92,14 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         die();
     }
 
+
     if (!sqlRequest($db, SQL_REGISTRATION_FINISH, $Params, $result)) {
         $message = "Не удалось выполнить запрос к базе на завершение регистрации";
         echo $message;
         die();
     }
 
-    //Регистрация выполнена успешно. Ставим куки
-    setcookie('code', $_GET['code'], time() + 3600 * 24 * 180);
+    //Регистрация выполнена успешно.
     $message = "Регистрация успешно пройдена. Вы можете вернуться на сервис DSAuto";
     echo $message;
     die();
@@ -108,22 +108,3 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
 
 $db = null; //Закрываем соединение с базой данных
 echo json_encode($JSON);
-
-
-
-
-
-
-function openDBforDSAuto(&$db)
-{
-    //Открыть базу данных с обработкой ошибок для приложения Wroclaw
-    if (!openDB($db, $err)) {
-        //Ошибка открытия базы данных
-        $JSON['status'] = false;
-        $JSON['err_description'] = "Невозможно установить соединение с базой данных";
-        $JSON['err_obj'] = $err;
-        $db = null;
-        return false;
-    }
-    return true;
-}

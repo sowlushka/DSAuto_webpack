@@ -12,3 +12,4 @@ export const urlDSAutoSearchServer="https://infobootkatalizatory.vipserv.org/sea
 export const urlEcotradeSearchServer="https://www.ecotradegroup.com/ru/search/1?search%5Bkeyword%5D=";//Поиск по базе Ecotrade
 
 export const regServerUrl="https://catalyst.h1n.ru/test-temp/reg.php";//Сервер регистрации пользователя
+export const checkUserServer="https://catalyst.h1n.ru/test-temp/checkuser.php";//Сервер проверки пользователя

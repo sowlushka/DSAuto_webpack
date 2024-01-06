@@ -60,6 +60,21 @@ function sqlRequest(&$conn, $SQL, &$paramArray, &$result)
 }
 
 
+function openDBforDSAuto(&$db)
+{
+    //Открыть базу данных с обработкой ошибок для приложения Wroclaw
+    if (!openDB($db, $err)) {
+        //Ошибка открытия базы данных
+        $JSON['status'] = false;
+        $JSON['err_description'] = "Невозможно установить соединение с базой данных";
+        $JSON['err_obj'] = $err;
+        $db = null;
+        return false;
+    }
+    return true;
+}
+
+
 function SendMail($topic, $body, $email, &$result)
 //функция рассылки писем с сайта
 {

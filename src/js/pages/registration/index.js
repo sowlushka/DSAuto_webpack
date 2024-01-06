@@ -6,7 +6,7 @@ const page=document.createElement('div');
 page.classList.add('registration-wrapper');
 page.append(createRegForm());
 
-export const RegistrattionPage=()=>{
+export const RegistrationPage=()=>{
     const html=new DocumentFragment;
     html.append(page, regAlertElement.alertElement);
     return html;

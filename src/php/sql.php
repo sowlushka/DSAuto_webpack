@@ -14,8 +14,8 @@ define(
 );
 
 //Поиск пользователя, ожидающего регистрацию
-define('SQL_GET_USER_FOR_REGISTR', 'SELECT checked FROM test_user WHERE cookie_id=:code');
+define('SQL_GET_USER_FOR_REGISTR', 'SELECT checked, cookie_id FROM test_user WHERE pswrd_hash=:pass_hash');
 
 
 //Завершаем регистрацию
-define('SQL_REGISTRATION_FINISH', 'UPDATE test_user SET checked=1 WHERE cookie_id=:code');
+define('SQL_REGISTRATION_FINISH', 'UPDATE test_user SET checked=1 WHERE pswrd_hash=:pass_hash');
