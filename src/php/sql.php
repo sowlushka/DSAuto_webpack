@@ -13,28 +13,9 @@ define(
      ON DUPLICATE KEY UPDATE cookie_id=:cookie, pswrd_hash=:pswrd_hash'
 );
 
+//Поиск пользователя, ожидающего регистрацию
+define('SQL_GET_USER_FOR_REGISTR', 'SELECT checked FROM test_user WHERE cookie_id=:code');
 
 
-//Получить номер телефона, привязанный к данному устройству и состояние привязки
-define('SQL_DEVICE_REGISTRY_PHONE', 'SELECT phone, dev_checked as checked FROM User_Device WHERE cookie=:cookie');
-
-//Получить выборку задач для бота
-define('SQL_TASKS', 'SELECT TicketDate FROM wroclaw WHERE phone=:phone AND run_status>0');
-
-//Обновляем время посещения сервера устройством
-define('SQL_LAST_VISIT_UPDATE', 'UPDATE User_Device SET last_visit=current_timestamp() WHERE cookie=:cookie');
-
-//Взять в базе код для подтверждения телефона
-define('SQL_GET_SMS_CODE', 'SELECT check_sms FROM User_Device WHERE cookie=:cookie');
-
-//Телефон подтверждён
-define('SQL_SET_PHONE_VALID', 'UPDATE User_Device SET dev_checked=1 WHERE cookie=:cookie');
-
-//Проверка поставлена ли задача ранее
-define('SQL_IS_TASK_EXIST', 'SELECT started FROM wroclaw WHERE phone=:phone AND TicketDate=:date ');
-
-//Ставим задачу на выполнение
-define('SQL_SET_TASK', 'INSERT INTO wroclaw (TicketDate, phone, run_status) VALUES (:date, :phone, 1)');
-
-//Получить дату поставленной задачи
-define('SQL_GET_DATE_BY_PHONE', 'SELECT TicketDate as `date` FROM wroclaw WHERE phone=:phone');
+//Завершаем регистрацию
+define('SQL_REGISTRATION_FINISH', 'UPDATE test_user SET checked=1 WHERE cookie_id=:code');

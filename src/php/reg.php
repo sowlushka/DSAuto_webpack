@@ -12,11 +12,17 @@ header('Access-Control-Allow-Headers: X-Requested-With');
 header('Content-type: text/html; charset=utf-8');
 
 $db = null; //Глобальная переменная подключения к базе данных
-if (!openDBforDSAuto($db)) die(json_encode($JSON)); //Открываем базу данных с обработкой ошибок для приложения DSAuto
-
-
 $JSON['status'] = false;
+if (!openDBforDSAuto($db)) {
+    $JSON['err_description'] = "Error database connection";
+    die(json_encode($JSON)); //Открываем базу данных с обработкой ошибок для приложения DSAuto
+}
+
+
+
+
 if (isset($_POST['email']) && isset($_POST['password'])) {
+    //-------------------БЛОК РЕГИСТРАЦИИ ПОЛЬЗОВАТЕЛЯ------------------------------------------------------------------
 
     //Проверяем есть ли уже такой пользователь в базе данных
     $result = null; //Переменная ответа
@@ -53,7 +59,9 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
 
     //Отправляем письмо на е-маил
     $topic = "Завершение регистрации на DSAuto";
-    $message = '<div>Для завершения регистрации на сервисе DSAuto перейдите <a href="https://catalyst.h1n.ru/test-temp/regFinish.php?code=' . $cookie . '">по ссылке:</a> </div>';
+    $message = '<div>Для завершения регистрации на сервисе DSAuto перейдите <a href="https://catalyst.h1n.ru/test-temp/reg.php?code=' .
+        urlencode($cookie) . '">по ссылке:</a> </div>';
+    $message .= "<div>Ваш пароль: " . $_POST['password'] . "</div>";
     $result = null; //Переменная ответа
     if (!SendMail($topic, $message, $_POST['email'], $result)) {
         //Не удалось отправить письмо
@@ -65,6 +73,36 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
 
 
     $JSON['status'] = true;
+} else if (isset($_GET['code'])) {
+    //-----------------------------БЛОК ПОДТВЕРЖДЕНИЯ Е-МАИЛ----------------------------------------
+
+    //Ищем в базе данных пользователя, ожидающего регистрацию
+    $Params[':code'] = $_GET['code'];
+    $result = null;
+
+    if (!sqlRequest($db, SQL_GET_USER_FOR_REGISTR, $Params, $result)) {
+        $message = "Не удалось выполнить запрос к базе данных для подтверждения е-маил";
+        echo $message;
+        die();
+    }
+
+    if (!count($result) || $result[0]['checked'] == 1) {
+        $message = "Ошибка. Страницы не существует";
+        echo $message;
+        die();
+    }
+
+    if (!sqlRequest($db, SQL_REGISTRATION_FINISH, $Params, $result)) {
+        $message = "Не удалось выполнить запрос к базе на завершение регистрации";
+        echo $message;
+        die();
+    }
+
+    //Регистрация выполнена успешно. Ставим куки
+    setcookie('code', $_GET['code'], time() + 3600 * 24 * 180);
+    $message = "Регистрация успешно пройдена. Вы можете вернуться на сервис DSAuto";
+    echo $message;
+    die();
 }
 
 
