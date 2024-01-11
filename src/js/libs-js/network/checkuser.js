@@ -2,8 +2,6 @@
 import { checkUserServer } from "../../const" ;
 
 
-export const user=checkUser();
-
 export async function checkUser(){
    const user= await fetch(checkUserServer, {
         method: "GET",

@@ -11,7 +11,7 @@ header('Content-type: text/html; charset=utf-8');
 
 //Если куки стоят, продливаем их срок действия на 180 дней
 if (isset($_COOKIE["code"])) {
-    setcookie("code", $_COOKIE["code"], time() + 3600 * 24 * 180);
+    setcookie("code", $_COOKIE["code"], time() + 3600 * 24 * 180, "/");
 }
 
 
@@ -40,7 +40,7 @@ if (count($result)) {
     $JSON['user']['code'] = $result[0]['cookie_id'];
 } else {
     $JSON['err_description'] = "Пользователь не найден";
-    $JSON['SQL'] = $SQL;
+    //$JSON['SQL'] = $SQL;
     $JSON['cookie'] = $_COOKIE["code"];
 }
 

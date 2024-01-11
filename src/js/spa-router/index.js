@@ -16,7 +16,7 @@ class Router {
   /**
    * Инициализирует роутер
    * @this {Router} объект Router
-   * @param {{target: Element, routes: Array<{path: string, view: Element}>}} params 
+   * @param {{target: Element, routes: Array<{path: string, view: Element}>}} params
    * Параметры инициализации
    * 1. target - контейнер встривания страниц
    * 2. routes - список путей до страниц
@@ -40,16 +40,22 @@ class Router {
       this.router();
     });
 
-    document.addEventListener("DOMContentLoaded", () => {
+    const initNavigation = () => {
       document.body.addEventListener("click", (e) => {
         if (e.target.matches("[data-link]")) {
           e.preventDefault();
-          this.navigateTo(e.target.href);
+          this.#navigateTo(e.target.href);
         }
       });
 
       this.router();
-    });
+    };
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", initNavigation);
+    } else {
+      initNavigation();
+    }
   }
 
   /**
@@ -63,6 +69,16 @@ class Router {
     return new RegExp(
       "^" + path.replace(/\//g, "\\/").replace(/:\w+/g, "(.+)") + "$"
     );
+  }
+
+  /**
+   * Направляет на указанный url страницы
+   * @this {Router} объект Router
+   * @param {string} url - полный адрес страницы
+   */
+  #navigateTo(url) {
+    history.pushState(null, null, url);
+    this.router();
   }
 
   /**
@@ -87,13 +103,13 @@ class Router {
   }
 
   /**
-   * Направляет на указанный url страницы
+   * Направляет на указанный endPoint страницы
    * @this {Router} объект Router
-   * @param {string} url - полный адрес страницы
+   * @param {string} endPoint - конечная точка путь до страницы
    */
-  navigateTo(url) {
-    history.pushState(null, null, url);
-    this.router();
+  navigate(endPoint) {
+    history.pushState(null, null, location.origin + endPoint);
+    location.reload();
   }
 
   /**

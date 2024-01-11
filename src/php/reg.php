@@ -11,6 +11,19 @@ header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Headers: X-Requested-With');
 header('Content-type: text/html; charset=utf-8');
 
+$cookie = generateRandomSymbols(20);
+//Ставим куки
+$cookie_options = [
+    'expires' => time() + 180 * 24 * 3600,
+    'path' => '/',
+    //'domain' => '*',
+    //'samesite' => 'None',
+    'secure' => false,
+    'httponly' => true
+];
+setcookie('code', $cookie, $cookie_options);
+
+
 $db = null; //Глобальная переменная подключения к базе данных
 $JSON['status'] = false;
 if (!openDBforDSAuto($db)) {
@@ -43,7 +56,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
     }
 
     //Регистрируем пользователя в базе данных.
-    $cookie = generateRandomSymbols(20);
+
     $hash = password_hash($_POST['password'], PASSWORD_BCRYPT);
     $result = null; //Переменная ответа
     $Params[':cookie'] = $cookie;
@@ -55,6 +68,7 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         $db = null;
         die(json_encode($JSON));
     }
+
 
     //Отправляем письмо на е-маил
     $topic = "Завершение регистрации на DSAuto";
@@ -70,9 +84,9 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         die(json_encode($JSON));
     }
 
-    //Письмо отправлено. Ставим куки
-    setcookie('code', $cookie, time() + 3600 * 24 * 180);
+
     $JSON['status'] = true;
+    $JSON['cookie'] = $cookie;
 } else if (isset($_GET['code'])) {
     //-----------------------------БЛОК ПОДТВЕРЖДЕНИЯ Е-МАИЛ----------------------------------------
 

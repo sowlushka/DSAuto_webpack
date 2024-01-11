@@ -2,23 +2,9 @@
 import { createSearchForm } from "./search-form.js";
 import { alertElement } from "./searchAlert.js";
 import { createHeader } from "../../libs-js/header.js";
-import { user } from "../../libs-js/network/checkuser.js";//Проверка залогиненности пользователя
-import { createLoginPage } from "../login/index.js";
 
 
-export let MainPage
-//Формируем страницу
-user.then(user=>{
-    if(user){
-        MainPage=createMainPage;
-    }else{
-        MainPage=createLoginPage;
-    }
-});
-
-
-
-
+export const MainPage=createMainPage;
 
 
 export function createMainPage(){
