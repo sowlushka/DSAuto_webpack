@@ -98,6 +98,10 @@ async function regUser(email, password){
             regAlertElement.showMessage(data.err_description);
             return false;
         }
+
+        //Запоминаем пользователя
+        const userCode={code: data['code'], term: data['term']};
+        localStorage.setItem('code', JSON.stringify(userCode));
         
         return true;//Регистрация на сервере не вернула ошибок
     });

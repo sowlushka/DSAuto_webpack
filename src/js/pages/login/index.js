@@ -1,6 +1,6 @@
 
 import { createForm_Login } from "./form-login";
-
+import { regAlertElement } from "../registration/reg-alert";
 
 
 
@@ -19,6 +19,6 @@ export function createLoginPage(){
     page.append(regLink);
 
     const html=new DocumentFragment;
-    html.append(page);
+    html.append(page, regAlertElement.alertElement);
     return html;
 }

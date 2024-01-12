@@ -84,9 +84,11 @@ if (isset($_POST['email']) && isset($_POST['password'])) {
         die(json_encode($JSON));
     }
 
-
+    //В кросс-доменных запросах перестали сохраняться куки.
+    //Возвращаем данные о пользователе в виде JSON для сохранения в localStorage средствами JS
     $JSON['status'] = true;
-    $JSON['cookie'] = $cookie;
+    $JSON['code'] = $cookie;
+    $JSON['term'] = $cookie_options['expires'];
 } else if (isset($_GET['code'])) {
     //-----------------------------БЛОК ПОДТВЕРЖДЕНИЯ Е-МАИЛ----------------------------------------
 
