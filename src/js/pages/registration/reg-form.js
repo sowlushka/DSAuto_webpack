@@ -82,7 +82,8 @@ function isEmailValid(email){
 
 async function regUser(email, password){
 //Регистрируем пользователя в базе данных сервиса
-    const result=await fetch(constants.regServerUrl, {
+    try{
+        const result=await fetch(constants.regServerUrl, {
         method: "POST",
         headers: {
             "Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",
@@ -91,20 +92,26 @@ async function regUser(email, password){
         body: "email="+encodeURIComponent(email)+"&password="+encodeURIComponent(password),
         referrerPolicy: "origin-when-cross-origin",
         mode: "cors"
-    }).then(response=>response.json())
-    .then(data=>{
-        if(!data?.status){
-        //Ошибка регистрации.Отображаем сообщение об ошибке
-            regAlertElement.showMessage(data.err_description);
-            return false;
-        }
+        }).then(response=>response.json())
+        .then(data=>{
+            if(!data?.status){
+            //Ошибка регистрации.Отображаем сообщение об ошибке
+                regAlertElement.showMessage(data.err_description);
+                return false;
+            }
 
-        //Запоминаем пользователя
-        const userCode={code: data['code'], term: data['term']};
-        localStorage.setItem('code', JSON.stringify(userCode));
-        
-        return true;//Регистрация на сервере не вернула ошибок
-    });
+            //Запоминаем пользователя
+            const userCode={code: data['code'], term: data['term']};
+            localStorage.setItem('code', JSON.stringify(userCode));
+            
+            return true;//Регистрация на сервере не вернула ошибок
+        });
 
-    return result;
+        return result;
+    }catch(err){
+        //Неизвестная ошибка
+        regAlertElement.showMessage("Ошибка сервера!<br> Не удалось выполнить регистрацию.<br><br>"+err.message);
+        return false;
+    }
+    
 }
