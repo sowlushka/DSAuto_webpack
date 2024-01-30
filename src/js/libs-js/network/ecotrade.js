@@ -20,7 +20,7 @@ export async function getEcotradeCatSerials(searchString, url=constants.urlEcotr
           response.text())
       .then((text)=>{
 
-        let json=text.match(/(?<=let products = )((\{.*?\})|(\[.+?\]))(?=;)/su)?.[0];
+        let json=text.match(/(?<=let products = )((\{.*?\})|(\[.*?\]))(?=;)/su)?.[0];
         if(!json){
             debugger;
         }
