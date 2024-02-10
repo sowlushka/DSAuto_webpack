@@ -10,6 +10,18 @@ import { clearCatalystList, createBrandSelectionData } from "../../libs-js/html-
 import { getDSAutoCatSerials, getMassfromDSAuto } from "../../libs-js/network/dsauto.js";
 import { cats } from "../../global-var.js";
 
+/*
+export class SearchForm {
+
+    constructor(){
+
+    }
+
+
+}*/
+
+
+
 export function createSearchForm(){
      const htmlForm=`
                 <label for="cat-search">Введите номер катализатора:</label>
