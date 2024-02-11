@@ -1,19 +1,23 @@
 import { AbstractPage } from "../../classes/AbstractPage.js";
 import { Alert } from "../../classes/Alert.mjs";
-import { createSearchForm } from "./search-form.js";
+import { SearchForm} from "./SearchForm.js";
 //import { createHeader } from "../../libs-js/header.js";
 
 
 export class MainPage extends AbstractPage{
     header;
     selectorMain;
+    form;
     catalystList;
     searchAlert;
     alert;
+    
 
-    constructor(){
+    constructor(callback){
         super();
-       //createPage();
+        this.form=new SearchForm();
+        this.form.startSearchCallback=callback;
+        this.form.create();
     }
 
     
@@ -25,8 +29,9 @@ export class MainPage extends AbstractPage{
 
         //Создаём блок для вывода результатов поиска
         this.catalystList=super.createElement('div','catalyst-list');
+        
 
-        this.selectorMain.append(createSearchForm(), this.catalystList);
+        this.selectorMain.append(this.form.form, this.catalystList);
 
         //Создаём div для отображения прогресса
         this.searchAlert=super.createElement('div', 'search-alert');
