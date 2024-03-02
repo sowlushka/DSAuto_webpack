@@ -33,10 +33,11 @@ export async function getDSAutoPriceById(id){
     redirect: "follow"
   })
       .then(response=>
-          response.json())
-      .then((json)=>{
+          response.text())
+      .then((text)=>{
         let cat=cats.find(cat=>cat.id==id);
-        cat.price=json[id].pokaz_cene_historia[json[id].pokaz_cene_historia.length-1].price_usd;
+        //cat.price=json[id].pokaz_cene_historia[json[id].pokaz_cene_historia.length-1].price_usd;
+        cat.price=text.match(/(\d+[\.,]\d+) USD/)[1];
         return cat.price;
       });
       return price;
@@ -66,7 +67,7 @@ export async function getDSAutoCatSerials(str){
           let catArr=text.split("cm_katalizator_itm");
           for(let i=1;i<catArr.length;++i){
           //Собираем информацию о катализаторах
-            let id=catArr[i].match(/(?<=pokaz_cene_mobile\()\d+/)?.[0];
+            let id=catArr[i].match(/cm_pokaz_cene_standard_(\d+)"/)?.[1];
             if(!id)continue;
             let serial=catArr[i].match(/(?<=cm_kat_link[^>]*>)(.*?)(?=<\/a>)/)[0].replaceAll("<b>","").replaceAll("</b>","");
             serial=serial.replaceAll("/"," / ");

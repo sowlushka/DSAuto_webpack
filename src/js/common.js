@@ -22,9 +22,15 @@ metallsCheckboxes.forEach(input=>{
 });
 
 
+const searchform=document.querySelector('.form__cat-search');
+searchform.onsubmit=startSearch
+catSearchButton.onclick=startSearch
 
-catSearchButton.onclick=async ()=>{
+
+
+async function startSearch(e){
 //Обработка клика по кнопке "Найти"
+  e.preventDefault();
   clearCatalystList();
   searchAlert.style.display="block";
   searchAlert.style.background="";

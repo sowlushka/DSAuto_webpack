@@ -37,7 +37,7 @@ export class Downloader{
         this.#status=false;
         this.#url = method.toUpperCase()=="GET" ? url + "?" + encodeURIComponent(this.#requestParameters) : url;
         this.#xhr.open(method, this.#url, true);
-        this.#xhr.responseType=contentType;
+        //this.#xhr.responseType=contentType;
         //body= "url="+encodeURIComponent(url);
 
         this.#xhr.onload=()=>{
